@@ -40,7 +40,7 @@ st.set_page_config(
 
 # GANTI dengan link RAW CSV kamu di GitHub agar data otomatis termuat
 # tanpa perlu upload setiap login. Kosongkan ("") jika belum ada.
-GITHUB_CSV_URL = ""
+GITHUB_CSV_URL = "https://raw.githubusercontent.com/Asalulzy/Dashboard_Sebaran_Fasilitas_Kesehatan_Kab_Karawang/main/data_koordinat3.csv"
 
 
 # ============================================================
