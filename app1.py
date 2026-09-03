@@ -21,6 +21,18 @@ Kolom yang diharapkan pada data.csv:
 provinsi_id, provinsi, kabupaten_id, kabupaten, jenis_fasyankes, fasyankes_id,
 fasyankes, jumlah_terduga, terduga_sesuai_standar, TBC_SO, TBC_RO,
 notifikasi_TBC, enrol_SO, enrol_RO, enrol, Latitude, Longitude, TCM
+
+CATATAN PERUBAHAN
+------------------
+Di peta (Halaman 1):
+    - WARNA titik tetap mengikuti variabel yang dipilih di sidebar (mis. TBC_RO),
+      dari yang paling kecil sampai paling besar (severity scale 5 tingkat).
+    - UKURAN (radius) titik sekarang TIDAK lagi mengikuti besar-kecil nilai
+      variabel, melainkan mengikuti ketersediaan TCM di fasyankes tersebut:
+        * TCM ada  -> radius sedikit lebih besar (TCM_RADIUS)
+        * TCM tidak ada / kosong -> radius normal (BASE_RADIUS)
+      Nilai kedua radius ini bisa diubah lewat konstanta BASE_RADIUS dan
+      TCM_RADIUS di bagian CONFIG di bawah.
 """
 
 import streamlit as st
@@ -40,6 +52,12 @@ st.set_page_config(
 )
 
 GITHUB_CSV_URL = "https://raw.githubusercontent.com/Asalulzy/Dashboard_Sebaran_Fasilitas_Kesehatan_Kab_Karawang/main/data_koordinat3.csv"
+
+# Ukuran titik peta berdasarkan ketersediaan TCM (bukan lagi berdasarkan
+# besar nilai variabel). Silakan sesuaikan angkanya jika ingin selisih
+# besar-kecil yang lebih terlihat.
+BASE_RADIUS = 500   # radius titik tanpa TCM
+TCM_RADIUS = 850     # radius titik dengan TCM (sedikit lebih besar)
 
 
 # ============================================================
@@ -61,6 +79,26 @@ SEVERITY_RGB = [
     tuple(int(h.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
     for h in SEVERITY_SCALE
 ]
+
+
+def get_severity_colors(n_class):
+    """
+    Ambil n_class warna dari SEVERITY_SCALE secara MERATA (dari ujung
+    terang ke ujung gelap), bukan mengambil n_class warna terakhir saja.
+    Ini penting supaya saat kelasnya cuma 2-3 (mis. variabel biner atau
+    data dengan sedikit nilai unik), kontras warnanya tetap jelas —
+    tidak keambil 2-3 warna gelap yang mirip di ujung skala.
+
+    n_class=1 -> warna paling gelap (paling "parah") saja.
+    n_class=2 -> warna paling terang & paling gelap (kontras maksimal).
+    n_class=5 -> seluruh skala, seperti semula.
+    """
+    if n_class <= 1:
+        return [SEVERITY_SCALE[-1]], [SEVERITY_RGB[-1]]
+    idx = np.round(np.linspace(0, len(SEVERITY_SCALE) - 1, n_class)).astype(int)
+    hex_colors = [SEVERITY_SCALE[i] for i in idx]
+    rgb_colors = [SEVERITY_RGB[i] for i in idx]
+    return hex_colors, rgb_colors
 
 # warna kategori jenis fasyankes — konsisten di semua grafik
 JENIS_COLOR_MAP = {
@@ -135,6 +173,7 @@ div[data-baseweb="tag"] {{
     font-family: 'IBM Plex Mono', monospace;
 }}
 .legend-swatch {{ width: 10px; height: 10px; display: inline-block; }}
+.legend-swatch-round {{ width: 10px; height: 10px; display: inline-block; border-radius: 50%; background-color: {INK}55; border: 1px solid {INK}99; }}
 </style>
 """
 
@@ -159,6 +198,23 @@ def render_legend(labels_and_colors):
         for label, color in labels_and_colors
     )
     st.markdown(f'<div class="legend-row">{chips}</div>', unsafe_allow_html=True)
+
+
+def render_size_legend():
+    """Legenda kecil untuk menjelaskan bahwa ukuran titik = ketersediaan TCM."""
+    st.markdown(
+        f"""<div class="legend-row">
+                <div class="legend-chip">
+                    <span class="legend-swatch-round" style="width:8px;height:8px;"></span>
+                    Tanpa TCM (ukuran normal)
+                </div>
+                <div class="legend-chip">
+                    <span class="legend-swatch-round" style="width:14px;height:14px;"></span>
+                    Ada TCM (ukuran sedikit lebih besar)
+                </div>
+            </div>""",
+        unsafe_allow_html=True,
+    )
 
 
 # ============================================================
@@ -330,6 +386,7 @@ st.divider()
 if st.session_state.page == "Peta":
 
     st.subheader(f"Peta Sebaran: {variabel_label}")
+    st.caption("Warna titik mengikuti nilai variabel di atas · Ukuran titik menunjukkan ketersediaan TCM")
 
     map_df = fdf.dropna(subset=["Latitude", "Longitude", variabel_col]).copy()
 
@@ -343,38 +400,77 @@ if st.session_state.page == "Peta":
         # / nilainya seragam, turunkan jumlah kelas otomatis.
         # ------------------------------------------------------
         vals = map_df[variabel_col]
-        try:
-            classed, bin_edges = pd.qcut(
-                vals, q=5, retbins=True, duplicates="drop"
-            )
-            n_class = classed.cat.categories.size
-            class_idx = classed.cat.codes.replace(-1, 0)
-        except ValueError:
+        n_unique = vals.nunique()
+
+        # ------------------------------------------------------
+        # Penentuan kelas warna:
+        #   - 1 nilai unik saja       -> 1 kelas (semua titik sama)
+        #   - 2-5 nilai unik (mis.    -> tiap nilai unik jadi kelasnya sendiri,
+        #     biner 0/1 seperti          jadi variabel biner TETAP dapat 2 kelas
+        #     Ketersediaan TCM)          warna berbeda, bukan collapse ke 1.
+        #   - > 5 nilai unik          -> kuantil 5 kelas seperti sebelumnya.
+        # ------------------------------------------------------
+        is_discrete = False
+
+        if n_unique <= 1:
             n_class = 1
             class_idx = pd.Series(0, index=vals.index)
             bin_edges = np.array([vals.min(), vals.max()])
 
-        colors = SEVERITY_RGB[-n_class:] if n_class > 1 else [SEVERITY_RGB[-1]]
+        elif n_unique <= 5:
+            is_discrete = True
+            sorted_unique = np.sort(vals.unique())
+            n_class = len(sorted_unique)
+            value_to_class = {v: i for i, v in enumerate(sorted_unique)}
+            class_idx = vals.map(value_to_class)
+            discrete_values = sorted_unique
+
+        else:
+            try:
+                classed, bin_edges = pd.qcut(
+                    vals, q=5, retbins=True, duplicates="drop"
+                )
+                n_class = classed.cat.categories.size
+                class_idx = classed.cat.codes.replace(-1, 0)
+            except ValueError:
+                n_class = 1
+                class_idx = pd.Series(0, index=vals.index)
+                bin_edges = np.array([vals.min(), vals.max()])
+
+        colors_hex, colors = get_severity_colors(n_class)
 
         map_df["color_r"] = class_idx.map(lambda i: colors[i][0])
         map_df["color_g"] = class_idx.map(lambda i: colors[i][1])
         map_df["color_b"] = class_idx.map(lambda i: colors[i][2])
 
-        max_val = vals.max()
-        if pd.isna(max_val) or max_val <= 0:
-            max_val = 1
-        map_df["radius"] = 300 + (vals / max_val) * 2500
+        # ------------------------------------------------------
+        # Ukuran titik: TIDAK lagi mengikuti besar nilai variabel.
+        # Sekarang murni berdasarkan ketersediaan TCM di fasyankes:
+        #   TCM ada       -> TCM_RADIUS (sedikit lebih besar)
+        #   TCM tidak ada -> BASE_RADIUS (ukuran normal)
+        # ------------------------------------------------------
+        map_df["radius"] = np.where(
+            map_df["TCM_numeric"] == 1, TCM_RADIUS, BASE_RADIUS
+        )
 
         # ------------------------------------------------------
-        # Legenda: chip warna + rentang angka nyata
+        # Legenda: chip warna (nilai variabel) + chip ukuran (TCM)
         # ------------------------------------------------------
         legend_items = []
-        edges = np.unique(np.round(bin_edges).astype(int))
-        for i in range(len(edges) - 1):
-            color = SEVERITY_SCALE[-(len(edges) - 1):][i] if len(edges) > 2 else SEVERITY_SCALE[-1]
-            legend_items.append((f"{edges[i]} – {edges[i+1]}", color))
+        if is_discrete:
+            for i, v in enumerate(discrete_values):
+                label = str(int(v)) if float(v).is_integer() else str(v)
+                legend_items.append((label, colors_hex[i]))
+        else:
+            edges = np.unique(np.round(bin_edges).astype(int))
+            n_edge_class = len(edges) - 1
+            edge_colors_hex, _ = get_severity_colors(n_edge_class)
+            for i in range(n_edge_class):
+                legend_items.append((f"{edges[i]} – {edges[i+1]}", edge_colors_hex[i]))
         if legend_items:
             render_legend(legend_items)
+
+        render_size_legend()
 
         view_state = pdk.ViewState(
             latitude=map_df["Latitude"].mean(),
