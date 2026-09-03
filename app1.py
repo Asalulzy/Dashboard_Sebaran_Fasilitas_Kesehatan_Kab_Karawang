@@ -1,38 +1,40 @@
 """
-Dashboard TB - Fasilitas Kesehatan (2 Halaman)
+TB Dashboard - Health Facilities (2 Pages)
 ================================================
 
-Cara menjalankan:
+How to run:
     pip install streamlit pandas plotly pydeck
 
     streamlit run app1.py
 
-Taruh folder .streamlit/config.toml sejajar dengan file ini (mengatur warna
-dasar Streamlit: tombol, chip filter, dll jadi teal, bukan merah default).
+Place the .streamlit/config.toml folder alongside this file (sets the
+base Streamlit theme colors: buttons, filter chips, etc. to teal instead
+of the default red).
 
-SUMBER DATA
+DATA SOURCE
 -----------
-Dashboard ini akan mencoba memuat data secara berurutan:
-    1. File yang diupload manual lewat sidebar (jika ada) -> prioritas tertinggi.
-    2. Data dari GitHub (raw CSV) lewat variabel GITHUB_CSV_URL di bawah ini.
-    3. File data.csv lokal di folder yang sama dengan app1.py (fallback terakhir).
+This dashboard will try to load data in the following order:
+    1. A file manually uploaded via the sidebar (if any) -> highest priority.
+    2. Data from GitHub (raw CSV) via the GITHUB_CSV_URL variable below.
+    3. A local data.csv file in the same folder as app1.py (last fallback).
 
-Kolom yang diharapkan pada data.csv:
+Columns expected in data.csv:
 provinsi_id, provinsi, kabupaten_id, kabupaten, jenis_fasyankes, fasyankes_id,
 fasyankes, jumlah_terduga, terduga_sesuai_standar, TBC_SO, TBC_RO,
 notifikasi_TBC, enrol_SO, enrol_RO, enrol, Latitude, Longitude, TCM
 
-CATATAN PERUBAHAN
+CHANGE NOTES
 ------------------
-Di peta (Halaman 1):
-    - WARNA titik tetap mengikuti variabel yang dipilih di sidebar (mis. TBC_RO),
-      dari yang paling kecil sampai paling besar (severity scale 5 tingkat).
-    - UKURAN (radius) titik sekarang TIDAK lagi mengikuti besar-kecil nilai
-      variabel, melainkan mengikuti ketersediaan TCM di fasyankes tersebut:
-        * TCM ada  -> radius sedikit lebih besar (TCM_RADIUS)
-        * TCM tidak ada / kosong -> radius normal (BASE_RADIUS)
-      Nilai kedua radius ini bisa diubah lewat konstanta BASE_RADIUS dan
-      TCM_RADIUS di bagian CONFIG di bawah.
+On the map (Page 1):
+    - The point COLOR still follows the variable selected in the sidebar
+      (e.g. TBC_RO), from smallest to largest (5-level severity scale).
+    - The point SIZE (radius) no longer follows the magnitude of the
+      selected variable; instead it follows TCM availability at that
+      facility:
+        * TCM available     -> slightly larger radius (TCM_RADIUS)
+        * TCM unavailable/empty -> normal radius (BASE_RADIUS)
+      Both radius values can be changed via the BASE_RADIUS and
+      TCM_RADIUS constants in the CONFIG section below.
 """
 
 import streamlit as st
@@ -47,21 +49,21 @@ import pydeck as pdk
 # ============================================================
 
 st.set_page_config(
-    page_title="Dashboard TB Fasyankes",
+    page_title="TB Facilities Dashboard",
     layout="wide"
 )
 
 GITHUB_CSV_URL = "https://raw.githubusercontent.com/Asalulzy/Dashboard_Sebaran_Fasilitas_Kesehatan_Kab_Karawang/main/data_koordinat3.csv"
 
-# Ukuran titik peta berdasarkan ketersediaan TCM (bukan lagi berdasarkan
-# besar nilai variabel). Silakan sesuaikan angkanya jika ingin selisih
-# besar-kecil yang lebih terlihat.
-BASE_RADIUS = 500   # radius titik tanpa TCM
-TCM_RADIUS = 850     # radius titik dengan TCM (sedikit lebih besar)
+# Map point size based on TCM availability (no longer based on the
+# magnitude of the variable's value). Feel free to adjust these numbers
+# if you want a more noticeable size difference.
+BASE_RADIUS = 500   # point radius without TCM
+TCM_RADIUS = 850     # point radius with TCM (slightly larger)
 
 
 # ============================================================
-# DESAIN: TOKEN WARNA, TIPOGRAFI, CSS
+# DESIGN: COLOR TOKENS, TYPOGRAPHY, CSS
 # ============================================================
 
 INK = "#16232E"
@@ -71,9 +73,9 @@ LINE = "#DCE2DE"
 TEAL = "#0B5E63"
 SLATE = "#3A5A78"
 
-# skala 5 tingkat untuk merepresentasikan JUMLAH/KEPARAHAN — dipakai
-# konsisten di peta, legenda, dan (kalau relevan) grafik, supaya satu
-# skema warna dipelajari sekali oleh pengguna.
+# 5-level scale to represent COUNT/SEVERITY — used consistently on the
+# map, legend, and (where relevant) charts, so users only need to learn
+# one color scheme.
 SEVERITY_SCALE = ["#F2D680", "#E8A33D", "#C1642F", "#93321F", "#7A1F1B"]
 SEVERITY_RGB = [
     tuple(int(h.lstrip("#")[i:i + 2], 16) for i in (0, 2, 4))
@@ -83,15 +85,16 @@ SEVERITY_RGB = [
 
 def get_severity_colors(n_class):
     """
-    Ambil n_class warna dari SEVERITY_SCALE secara MERATA (dari ujung
-    terang ke ujung gelap), bukan mengambil n_class warna terakhir saja.
-    Ini penting supaya saat kelasnya cuma 2-3 (mis. variabel biner atau
-    data dengan sedikit nilai unik), kontras warnanya tetap jelas —
-    tidak keambil 2-3 warna gelap yang mirip di ujung skala.
+    Pick n_class colors from SEVERITY_SCALE EVENLY (from the lightest
+    end to the darkest end), rather than just taking the last n_class
+    colors. This matters when there are only 2-3 classes (e.g. a binary
+    variable or data with few unique values), so the color contrast
+    stays clear — instead of ending up with 2-3 similar dark colors
+    from the end of the scale.
 
-    n_class=1 -> warna paling gelap (paling "parah") saja.
-    n_class=2 -> warna paling terang & paling gelap (kontras maksimal).
-    n_class=5 -> seluruh skala, seperti semula.
+    n_class=1 -> the darkest ("most severe") color only.
+    n_class=2 -> the lightest & darkest colors (maximum contrast).
+    n_class=5 -> the whole scale, as before.
     """
     if n_class <= 1:
         return [SEVERITY_SCALE[-1]], [SEVERITY_RGB[-1]]
@@ -100,13 +103,13 @@ def get_severity_colors(n_class):
     rgb_colors = [SEVERITY_RGB[i] for i in idx]
     return hex_colors, rgb_colors
 
-# warna kategori jenis fasyankes — konsisten di semua grafik
+# category colors for facility type — consistent across all charts
 JENIS_COLOR_MAP = {
     "Puskesmas": TEAL,
-    "Rumah Sakit": SLATE,
+    "Hospital": SLATE,
 }
 
-# ramp teal untuk funnel kaskade (bukan severity — ini tahapan, bukan intensitas spasial)
+# teal ramp for the cascade funnel (not severity — these are stages, not spatial intensity)
 TEAL_RAMP = ["#CFE8E6", "#8FC6C2", "#4FA39D", "#0B5E63", "#063D40"]
 
 CUSTOM_CSS = f"""
@@ -201,16 +204,16 @@ def render_legend(labels_and_colors):
 
 
 def render_size_legend():
-    """Legenda kecil untuk menjelaskan bahwa ukuran titik = ketersediaan TCM."""
+    """Small legend explaining that point size = TCM availability."""
     st.markdown(
         f"""<div class="legend-row">
                 <div class="legend-chip">
                     <span class="legend-swatch-round" style="width:8px;height:8px;"></span>
-                    Tanpa TCM (ukuran normal)
+                    No TCM (normal size)
                 </div>
                 <div class="legend-chip">
                     <span class="legend-swatch-round" style="width:14px;height:14px;"></span>
-                    Ada TCM (ukuran sedikit lebih besar)
+                    TCM available (slightly larger size)
                 </div>
             </div>""",
         unsafe_allow_html=True,
@@ -226,6 +229,14 @@ def load_data(path_or_url_or_buffer):
 
     df = pd.read_csv(path_or_url_or_buffer)
     df.columns = [c.strip() for c in df.columns]
+
+    # Relabel facility type values for display: "Rumah Sakit" -> "Hospital".
+    # "Puskesmas" is intentionally left unchanged.
+    if "jenis_fasyankes" in df.columns:
+        df["jenis_fasyankes"] = df["jenis_fasyankes"].replace({
+            "Rumah Sakit": "Hospital",
+            "rumah sakit": "Hospital",
+        })
 
     numeric_cols = [
         "jumlah_terduga", "terduga_sesuai_standar", "TBC_SO", "TBC_RO",
@@ -253,41 +264,41 @@ def load_data(path_or_url_or_buffer):
 
 def load_data_with_fallback(uploaded_file):
     if uploaded_file is not None:
-        return load_data(uploaded_file), "upload manual"
+        return load_data(uploaded_file), "manual upload"
 
     if GITHUB_CSV_URL.strip() != "":
         try:
             return load_data(GITHUB_CSV_URL), "GitHub"
         except Exception as e:
-            st.sidebar.warning(f"Gagal memuat data dari GitHub ({e}). Mencoba file lokal data.csv...")
+            st.sidebar.warning(f"Failed to load data from GitHub ({e}). Trying local data.csv file...")
 
     try:
-        return load_data("data.csv"), "file lokal"
+        return load_data("data.csv"), "local file"
     except FileNotFoundError:
         return None, None
 
 
 # ============================================================
-# SIDEBAR - SUMBER DATA
+# SIDEBAR - DATA SOURCE
 # ============================================================
 
-st.sidebar.header("Sumber Data")
+st.sidebar.header("Data Source")
 
 uploaded = st.sidebar.file_uploader(
-    "Upload data.csv (opsional, override sumber otomatis)", type="csv"
+    "Upload data.csv (optional, overrides automatic source)", type="csv"
 )
 
 df, sumber = load_data_with_fallback(uploaded)
 
 if df is None:
     st.error(
-        "Data tidak ditemukan. Tidak ada file upload, link GitHub belum diisi "
-        "(GITHUB_CSV_URL), dan data.csv lokal tidak ditemukan. Silakan upload "
-        "lewat sidebar atau isi GITHUB_CSV_URL di app1.py."
+        "Data not found. No file was uploaded, the GitHub link is empty "
+        "(GITHUB_CSV_URL), and no local data.csv file was found. Please "
+        "upload via the sidebar or fill in GITHUB_CSV_URL in app1.py."
     )
     st.stop()
 
-st.sidebar.caption(f"Data dimuat dari: **{sumber}**")
+st.sidebar.caption(f"Data loaded from: **{sumber}**")
 
 
 # ============================================================
@@ -297,34 +308,33 @@ st.sidebar.caption(f"Data dimuat dari: **{sumber}**")
 st.sidebar.header("Filter")
 
 kab_list = sorted(df["kabupaten"].dropna().unique().tolist())
-kab_selected = st.sidebar.multiselect("Kabupaten", kab_list, default=kab_list)
+kab_selected = st.sidebar.multiselect("District/Regency", kab_list, default=kab_list)
 
 jenis_list = sorted(df["jenis_fasyankes"].dropna().unique().tolist())
-jenis_selected = st.sidebar.multiselect("Jenis Fasyankes", jenis_list, default=jenis_list)
+jenis_selected = st.sidebar.multiselect("Facility Type", jenis_list, default=jenis_list)
 
 
 # ============================================================
-# VARIABEL UNTUK PETA & GRAFIK
+# VARIABLE FOR MAP & CHARTS
 # ============================================================
 
 variabel_options = {
-    "Jumlah Terduga TB": "jumlah_terduga",
-    "Terduga Sesuai Standar": "terduga_sesuai_standar",
-    "TBC Sensitif Obat (SO)": "TBC_SO",
-    "TBC Resisten Obat (RO)": "TBC_RO",
-    "Notifikasi TBC": "notifikasi_TBC",
-    "Enrolment SO": "enrol_SO",
-    "Enrolment RO": "enrol_RO",
-    "Total Enrolment": "enrol",
-    "Ketersediaan TCM": "TCM_numeric",
+    "Number of Presumptive TB Cases": "jumlah_terduga",
+    "Drug-Sensitive TB (DS-TB)": "TBC_SO",
+    "Drug-Resistant TB (DR-TB)": "TBC_RO",
+    "TB Notifications": "notifikasi_TBC",
+    "DS-TB Enrollment": "enrol_SO",
+    "DR-TB Enrollment": "enrol_RO",
+    "Total Enrollment": "enrol",
+    "TCM Availability": "TCM_numeric",
 }
 
-variabel_label = st.sidebar.selectbox("Variabel untuk peta & grafik", list(variabel_options.keys()))
+variabel_label = st.sidebar.selectbox("Variable for map & charts", list(variabel_options.keys()))
 variabel_col = variabel_options[variabel_label]
 
 
 # ============================================================
-# APPLY FILTER (tanpa filter TCM — faskes non-TCM/kosong tetap masuk)
+# APPLY FILTER (no TCM filter — facilities without TCM/empty are still included)
 # ============================================================
 
 mask = df["kabupaten"].isin(kab_selected) & df["jenis_fasyankes"].isin(jenis_selected)
@@ -335,17 +345,16 @@ fdf = df[mask].copy()
 # HEADER & KPI
 # ============================================================
 
-st.title("Pemetaan Fasilitas Kesehatan dan Pemantauan Indikator Layanan Tuberkulosis")
-st.caption("Data terduga, notifikasi, dan enrolment TB per fasyankes")
+st.title("Mapping of Health Facilities and Monitoring of Tuberculosis Service Indicators")
+st.caption("Presumptive case, notification, and TB enrollment data per health facility")
 
-kpi_cols = st.columns(6)
+kpi_cols = st.columns(5)
 kpi_defs = [
-    ("Jumlah Fasyankes", fdf["fasyankes"].nunique()),
-    ("Total Terduga", int(fdf["jumlah_terduga"].sum(skipna=True))),
-    ("Terduga Sesuai Standar", int(fdf["terduga_sesuai_standar"].sum(skipna=True))),
-    ("TBC SO", int(fdf["TBC_SO"].sum(skipna=True))),
-    ("TBC RO", int(fdf["TBC_RO"].sum(skipna=True))),
-    ("Notifikasi TBC", int(fdf["notifikasi_TBC"].sum(skipna=True))),
+    ("Number of Facilities", fdf["fasyankes"].nunique()),
+    ("Total Presumptive Cases", int(fdf["jumlah_terduga"].sum(skipna=True))),
+    ("DS-TB", int(fdf["TBC_SO"].sum(skipna=True))),
+    ("DR-TB", int(fdf["TBC_RO"].sum(skipna=True))),
+    ("TB Notifications", int(fdf["notifikasi_TBC"].sum(skipna=True))),
 ]
 for col, (label, value) in zip(kpi_cols, kpi_defs):
     kpi_card(label, value, col)
@@ -354,23 +363,23 @@ st.divider()
 
 
 # ============================================================
-# NAVIGASI HALAMAN
+# PAGE NAVIGATION
 # ============================================================
 
 if "page" not in st.session_state:
-    st.session_state.page = "Peta"
+    st.session_state.page = "Map"
 
 nav_col1, nav_col2, nav_col3 = st.columns([1, 1, 4])
 
 with nav_col1:
-    if st.button("Halaman Peta",
-                  type="primary" if st.session_state.page == "Peta" else "secondary",
+    if st.button("Map Page",
+                  type="primary" if st.session_state.page == "Map" else "secondary",
                   use_container_width=True):
-        st.session_state.page = "Peta"
+        st.session_state.page = "Map"
         st.rerun()
 
 with nav_col2:
-    if st.button("Halaman Data Analyst",
+    if st.button("Data Analyst Page",
                   type="primary" if st.session_state.page == "Data Analyst" else "secondary",
                   use_container_width=True):
         st.session_state.page = "Data Analyst"
@@ -380,35 +389,37 @@ st.divider()
 
 
 # ============================================================
-# HALAMAN 1: PETA
+# PAGE 1: MAP
 # ============================================================
 
-if st.session_state.page == "Peta":
+if st.session_state.page == "Map":
 
-    st.subheader(f"Peta Sebaran: {variabel_label}")
-    st.caption("Warna titik mengikuti nilai variabel di atas · Ukuran titik menunjukkan ketersediaan TCM")
+    st.subheader(f"Distribution Map: {variabel_label}")
+    st.caption("Point color follows the variable selected above · Point size shows TCM availability")
 
     map_df = fdf.dropna(subset=["Latitude", "Longitude", variabel_col]).copy()
 
     if map_df.empty:
-        st.info("Tidak ada data untuk ditampilkan pada peta dengan filter saat ini.")
+        st.info("No data to display on the map with the current filters.")
 
     else:
         # ------------------------------------------------------
-        # Kelas warna: 5 kelas berbasis kuantil data yang tampil,
-        # dipetakan ke SEVERITY_SCALE. Kalau data terlalu sedikit
-        # / nilainya seragam, turunkan jumlah kelas otomatis.
+        # Color classes: 5 classes based on quantiles of the displayed
+        # data, mapped to SEVERITY_SCALE. If there is too little data
+        # / the values are uniform, the number of classes is reduced
+        # automatically.
         # ------------------------------------------------------
         vals = map_df[variabel_col]
         n_unique = vals.nunique()
 
         # ------------------------------------------------------
-        # Penentuan kelas warna:
-        #   - 1 nilai unik saja       -> 1 kelas (semua titik sama)
-        #   - 2-5 nilai unik (mis.    -> tiap nilai unik jadi kelasnya sendiri,
-        #     biner 0/1 seperti          jadi variabel biner TETAP dapat 2 kelas
-        #     Ketersediaan TCM)          warna berbeda, bukan collapse ke 1.
-        #   - > 5 nilai unik          -> kuantil 5 kelas seperti sebelumnya.
+        # Color class determination:
+        #   - only 1 unique value       -> 1 class (all points the same)
+        #   - 2-5 unique values (e.g.   -> each unique value becomes its own
+        #     binary 0/1 like               class, so a binary variable STILL
+        #     TCM Availability)             gets 2 distinct color classes,
+        #                                    instead of collapsing to 1.
+        #   - > 5 unique values         -> 5-class quantiles as before.
         # ------------------------------------------------------
         is_discrete = False
 
@@ -444,17 +455,17 @@ if st.session_state.page == "Peta":
         map_df["color_b"] = class_idx.map(lambda i: colors[i][2])
 
         # ------------------------------------------------------
-        # Ukuran titik: TIDAK lagi mengikuti besar nilai variabel.
-        # Sekarang murni berdasarkan ketersediaan TCM di fasyankes:
-        #   TCM ada       -> TCM_RADIUS (sedikit lebih besar)
-        #   TCM tidak ada -> BASE_RADIUS (ukuran normal)
+        # Point size: NO LONGER follows the magnitude of the variable.
+        # Now based purely on TCM availability at the facility:
+        #   TCM available     -> TCM_RADIUS (slightly larger)
+        #   TCM not available -> BASE_RADIUS (normal size)
         # ------------------------------------------------------
         map_df["radius"] = np.where(
             map_df["TCM_numeric"] == 1, TCM_RADIUS, BASE_RADIUS
         )
 
         # ------------------------------------------------------
-        # Legenda: chip warna (nilai variabel) + chip ukuran (TCM)
+        # Legend: color chips (variable value) + size chip (TCM)
         # ------------------------------------------------------
         legend_items = []
         if is_discrete:
@@ -505,18 +516,16 @@ if st.session_state.page == "Peta":
                 </div>
                 <table style="width:100%; border-collapse:collapse; font-size:12px;
                                font-family:'IBM Plex Mono',monospace;">
-                    <tr><td style="color:#5b6b73;">Jumlah Terduga</td>
+                    <tr><td style="color:#5b6b73;">Presumptive Cases</td>
                         <td style="text-align:right; font-weight:600;">{{jumlah_terduga}}</td></tr>
-                    <tr><td style="color:#5b6b73;">Sesuai Standar</td>
-                        <td style="text-align:right; font-weight:600;">{{terduga_sesuai_standar}}</td></tr>
-                    <tr><td style="color:#5b6b73;">TBC SO</td>
+                    <tr><td style="color:#5b6b73;">DS-TB</td>
                         <td style="text-align:right; font-weight:600;">{{TBC_SO}}</td></tr>
-                    <tr><td style="color:#5b6b73;">TBC RO</td>
+                    <tr><td style="color:#5b6b73;">DR-TB</td>
                         <td style="text-align:right; font-weight:600;">{{TBC_RO}}</td></tr>
-                    <tr><td style="color:#5b6b73;">Notifikasi TBC</td>
+                    <tr><td style="color:#5b6b73;">TB Notifications</td>
                         <td style="text-align:right; font-weight:600;">{{notifikasi_TBC}}</td></tr>
                     <tr style="border-top:1px solid {LINE};">
-                        <td style="color:#5b6b73;">Total Enrolment</td>
+                        <td style="color:#5b6b73;">Total Enrollment</td>
                         <td style="text-align:right; font-weight:600;">{{enrol}}</td></tr>
                 </table>
             </div>
@@ -541,16 +550,16 @@ if st.session_state.page == "Peta":
 
 
 # ============================================================
-# HALAMAN 2: DATA ANALYST
+# PAGE 2: DATA ANALYST
 # ============================================================
 
 else:
 
-    st.subheader("Pengaturan Tampilan")
+    st.subheader("Display Settings")
 
-    jumlah_options = {"Top 10": 10, "Top 15": 15, "Top 50": 50, "Tampilkan Semua": None}
+    jumlah_options = {"Top 10": 10, "Top 15": 15, "Top 50": 50, "Show All": None}
     jumlah_label = st.selectbox(
-        "Jumlah data yang ditampilkan (grafik Top Fasyankes)",
+        "Number of records to display (Top Facilities chart)",
         list(jumlah_options.keys()), index=1
     )
     jumlah_n = jumlah_options[jumlah_label]
@@ -561,8 +570,8 @@ else:
 
     with c1:
         judul_top = (
-            f"{jumlah_label} Fasyankes - {variabel_label}"
-            if jumlah_n is not None else f"Semua Fasyankes - {variabel_label}"
+            f"{jumlah_label} Facilities - {variabel_label}"
+            if jumlah_n is not None else f"All Facilities - {variabel_label}"
         )
         st.subheader(judul_top)
 
@@ -587,7 +596,7 @@ else:
         st.plotly_chart(fig_bar, use_container_width=True)
 
     with c2:
-        st.subheader(f"Total {variabel_label} per Kabupaten")
+        st.subheader(f"Total {variabel_label} by District/Regency")
 
         agg_df = fdf.groupby("kabupaten", as_index=False)[variabel_col].sum().sort_values(
             variabel_col, ascending=False
@@ -605,15 +614,15 @@ else:
 
     st.divider()
 
-    st.subheader("Perbandingan Kaskade TB (Terduga → Notifikasi → Enrolment)")
+    st.subheader("TB Cascade Comparison (Presumptive → Notification → Enrollment)")
 
-    cascade_cols = ["jumlah_terduga", "terduga_sesuai_standar", "notifikasi_TBC", "enrol"]
+    cascade_cols = ["jumlah_terduga", "notifikasi_TBC", "enrol"]
     cascade_cols = [c for c in cascade_cols if c in fdf.columns]
 
     cascade_sum = fdf[cascade_cols].sum(skipna=True).reset_index()
-    cascade_sum.columns = ["Tahap", "Jumlah"]
+    cascade_sum.columns = ["Stage", "Count"]
 
-    fig_cascade = px.funnel(cascade_sum, x="Jumlah", y="Tahap")
+    fig_cascade = px.funnel(cascade_sum, x="Count", y="Stage")
     fig_cascade.update_traces(marker_color=TEAL_RAMP[:len(cascade_sum)])
     fig_cascade.update_layout(
         plot_bgcolor=SURFACE,
@@ -624,8 +633,8 @@ else:
 
     st.divider()
 
-    st.subheader("Data Detail")
+    st.subheader("Detailed Data")
     st.dataframe(fdf, use_container_width=True, hide_index=True)
 
     csv = fdf.to_csv(index=False).encode("utf-8")
-    st.download_button("Download data terfilter (CSV)", csv, "data_tb_filtered.csv", "text/csv")
+    st.download_button("Download filtered data (CSV)", csv, "data_tb_filtered.csv", "text/csv")
