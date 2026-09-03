@@ -1,0 +1,79 @@
+provinsi_id,provinsi,kabupaten_id,kabupaten,jenis_fasyankes,fasyankes_id,fasyankes,jumlah_terduga,terduga_sesuai_standar,TBC_SO,TBC_RO,notifikasi_TBC,enrol_SO,enrol_RO,enrol,Latitude,Longitude,TCM
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3534,Puskesmas Pangkalan Karawang,343,298,54,0,54,51,0,51,-6.4663,107.2162
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3535,Puskesmas Loji Karawang,245,157,43,0,43,39,0,39,-6.5112,107.2248
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3536,Puskesmas Ciampel,235,185,65,2,67,44,2,46,-6.3931,107.3616
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3537,Puskesmas Teluk Jambe,243,233,46,0,46,46,0,46,-6.3367,107.3147
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3538,Puskesmas Wadas,233,131,34,0,34,32,0,32,-6.3342,107.2783
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3539,Puskesmas Wanakerta,274,190,37,0,37,29,0,29,-6.373,107.2246
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3540,Puskesmas Klari,806,770,68,0,68,65,0,65,-6.3682,107.3705
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3541,Puskesmas Curug Karawang,70,66,21,0,21,18,0,18,-6.4368,107.3837
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3542,Puskesmas Anggadita,200,165,27,0,27,24,0,24,-6.3512,107.3428
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3543,Puskesmas Cikampek,736,653,157,2,159,147,2,149,-6.4046,107.4521, Ada
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3544,Puskesmas Purwasari,328,248,54,4,58,37,3,40,-6.38,107.4181
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3545,Puskesmas Tirta Mulya,184,127,24,2,26,19,1,20,-6.3468,107.4708
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3546,Puskesmas Jati Sari,579,538,123,1,124,122,1,123,-6.3711,107.5227
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3547,Puskesmas Pacing,132,120,23,0,23,22,0,22,-6.3329,107.5102
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3548,Puskesmas Cicinde,435,332,32,0,32,31,0,31,-6.3227,107.5608
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3549,Puskesmas Gempol Karawang,61,44,10,0,10,10,0,10,-6.2985,107.5684
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3550,Puskesmas Kota Baru Karawang,253,239,50,1,51,49,1,50,-6.3959,107.4807
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3551,Puskesmas Jomin,198,169,39,2,41,36,1,37,-6.4205,107.477
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3552,Puskesmas Cikampek Utara,627,538,50,2,52,35,2,37,-6.4003,107.4617
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3553,Puskesmas Cilamaya,368,344,61,0,61,60,0,60,-6.2489,107.5996, Ada
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3554,Puskesmas Sukatani Karawang,180,144,43,0,43,41,0,41,-6.2276,107.5553
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3555,Puskesmas Pasir Rukem,113,45,29,1,30,27,1,28,-6.219,107.5352
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3556,Puskesmas Bayur Lor,142,118,32,1,33,29,1,30,-6.2574,107.5308
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3557,Puskesmas Lemahabang,382,289,56,4,60,44,1,45,-6.2827,107.4813, Ada
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3558,Puskesmas Talagasari,347,326,75,2,77,62,2,64,-6.2897,107.385
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3559,Puskesmas Majalaya Karawang,180,123,43,1,44,32,1,33,-6.3205,107.3716
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3560,Puskesmas Plawad,477,464,46,0,46,44,0,44,-6.292,107.3482
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3561,Puskesmas Adiarsa,270,260,56,2,58,52,2,54,-6.3161,107.3165
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3562,Puskesmas Karawang Kulon,313,307,15,0,15,15,0,15,-6.3001,107.2927
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3563,Puskesmas Karawang Kota,172,161,32,0,32,31,0,31,-6.2984,107.3005
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3564,Puskesmas Tunggak Jati,145,90,28,1,29,24,1,25,-6.2164,107.2973
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3565,Puskesmas Nagasari,141,116,27,0,27,26,0,26,-6.3107,107.2944
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3566,Puskesmas Tanjungpura,199,121,60,0,60,45,0,45,-6.2889,107.2857
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3567,Puskesmas Rawamerta,116,107,21,0,21,14,0,14,-6.2486,107.3592
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3568,Puskesmas Balongsari Karawang,120,104,16,0,16,12,0,12,-6.2407,107.3268
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3569,Puskesmas Tempuran Karawang,150,138,44,0,44,41,0,41,-6.1855,107.445
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3570,Puskesmas Lemah Duhur,115,107,23,0,23,21,0,21,-6.2194,107.4039
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3571,Puskesmas Kutawaluya,202,136,31,0,31,31,0,31,-6.1776,107.3412
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3572,Puskesmas Kutamukti,177,117,28,0,28,28,0,28,-6.1463,107.3353
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3573,Puskesmas Rengasdengklok,404,302,78,1,79,63,1,64,-6.1578,107.2924
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3574,Puskesmas Kalangsari,173,159,49,1,50,46,1,47,-6.2169,107.2969
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3575,Puskesmas Medangasem,217,200,52,1,53,52,1,53,-6.1176,107.2737
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3576,Puskesmas Jayakerta,211,162,37,1,38,20,1,21,-6.1225,107.3253
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3577,Puskesmas Pedes,345,287,68,2,70,64,2,66,-6.0938,107.3698
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3578,Puskesmas Sungai Buntu,74,62,21,0,21,17,0,17,-6.0582,107.4133
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3579,Puskesmas Kertamukti,179,158,44,1,45,41,0,41,-6.1316,107.4341
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3580,Puskesmas Cibuaya,370,291,82,0,82,75,0,75,-6.056,107.3546
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3581,Puskesmas Tirtajaya,559,507,132,2,134,132,2,134,-6.0544,107.2487
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3582,Puskesmas Batujaya,487,357,117,1,118,111,1,112,-6.0751,107.1751, Ada
+12,Jawa Barat,175,Kab. Karawang,Puskesmas,3583,Puskesmas Pakisjaya,239,162,45,0,45,41,0,41,-6.0251,107.1074
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10841,RS Umum Daerah Karawang,1967,1680,965,11,976,886,10,896,-6.3206,107.2942, Ada
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10842,RS Umum Bayukarta,504,401,94,2,96,82,2,84,-6.3032,107.2926
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10843,RS Umum Dewi Sri,854,629,288,2,290,283,2,285,-6.3043,107.2978
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10844,RS Umum Karya Husada,304,276,125,0,125,96,0,96,-6.4004,107.4449
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10845,RS Umum Proklamasi,309,172,171,1,172,147,0,147,-6.1703,107.2981
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10846,RS Umum Islam Karawang,1154,1023,178,2,180,176,1,177,-6.2816,107.284
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10847,RS Umum Saraswati,92,76,27,1,28,25,1,26,-6.3995,107.4706
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10848,RS Umum Delima Asih Sisma Medika,395,362,58,0,58,46,0,46,-6.3148,107.317
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10849,RS Ibu dan Anak Dr. Djoko Pramono,3,3,3,0,3,1,0,1,-6.3048,107.3026
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10850,RS Umum Citra Sari Husada,1236,1036,443,5,448,427,4,431,-6.3496,107.3786
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10851,RS Umum Izza,676,458,184,3,187,124,1,125,-6.3897,107.4674
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10852,RS Umum Mandaya,135,110,49,1,50,42,1,43,-6.3413,107.292
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10853,RS Umum Lira Medika,804,738,202,0,202,185,0,185,-6.3026,107.3268
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10854,RS Umum Fikri Medika,804,562,271,1,272,234,0,234,-6.352,107.3792
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10855,RS Umum Puri Asih,597,558,139,3,142,131,3,134,-6.3717,107.5215
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10856,RS Ibu dan Anak Mitra Family,18,16,1,0,1,1,0,1,-6.3155,107.2948
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10857,RS Umum Helsa Cikampek,406,388,55,1,56,46,0,46,-6.4132,107.4656
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10858,RSU San Medical Center,118,110,58,1,59,54,1,55,-6.4028,107.4499
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10859,RS Umum Rosela,137,123,92,0,92,83,0,83,-6.3343,107.274
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10860,RS Umum Sentral Medika,220,153,88,0,88,31,0,31,-6.3514,107.5792
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,10861,RS Umum Amanda Mitra Keluarga,576,362,253,3,256,164,1,165,-6.2831,107.4579
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,14394,RS Umum Daerah Jatisari Karawang,1001,852,347,11,358,305,10,315,-6.3702,107.5227, Ada
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,14395,RS Primaya Karawang,692,404,196,4,200,172,3,175,-6.3301,107.2976
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,14396,RS Hermina Karawang,355,220,118,3,121,85,2,87,-6.3082,107.313
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,15264,Rumah Sakit Permata Keluarga,105,85,52,0,52,43,0,43,-6.322,107.2917
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,21644,RS Hastien Rengasdengklok,808,678,342,14,356,311,12,323,-6.1466,107.3028
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,38343,RS Efarina Etaham Karawang,598,392,280,3,283,212,2,214,-6.2887,107.3964
+12,Jawa Barat,175,Kab. Karawang,Rumah Sakit,38694,RS Umum Daerah Rengasdengklok,272,158,91,3,94,65,2,67,-6.1729,107.2967
