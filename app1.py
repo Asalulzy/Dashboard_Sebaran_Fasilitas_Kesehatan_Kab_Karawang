@@ -209,11 +209,11 @@ def render_size_legend():
         f"""<div class="legend-row">
                 <div class="legend-chip">
                     <span class="legend-swatch-round" style="width:8px;height:8px;"></span>
-                    No TCM (normal size)
+                    No mWRD (normal size)
                 </div>
                 <div class="legend-chip">
                     <span class="legend-swatch-round" style="width:14px;height:14px;"></span>
-                    TCM available (slightly larger size)
+                    mWRD available (slightly larger size)
                 </div>
             </div>""",
         unsafe_allow_html=True,
@@ -326,7 +326,7 @@ variabel_options = {
     "DS-TB Enrollment": "enrol_SO",
     "DR-TB Enrollment": "enrol_RO",
     "Total Enrollment": "enrol",
-    "TCM Availability": "TCM_numeric",
+    "mWRD Availability": "TCM_numeric",
 }
 
 variabel_label = st.sidebar.selectbox("Variable for map & charts", list(variabel_options.keys()))
@@ -395,7 +395,7 @@ st.divider()
 if st.session_state.page == "Map":
 
     st.subheader(f"Distribution Map: {variabel_label}")
-    st.caption("Point color follows the variable selected above · Point size shows TCM availability")
+    st.caption("Point color follows the variable selected above · Point size shows mWRD availability")
 
     map_df = fdf.dropna(subset=["Latitude", "Longitude", variabel_col]).copy()
 
@@ -512,7 +512,7 @@ if st.session_state.page == "Map":
                     {{fasyankes}}
                 </div>
                 <div style="font-size:12px; color:#5b6b73; margin-bottom:8px;">
-                    {{kabupaten}} &middot; {{jenis_fasyankes}} &middot; TCM: {{TCM}}
+                    {{kabupaten}} &middot; {{jenis_fasyankes}} &middot; mWRD: {{TCM}}
                 </div>
                 <table style="width:100%; border-collapse:collapse; font-size:12px;
                                font-family:'IBM Plex Mono',monospace;">
