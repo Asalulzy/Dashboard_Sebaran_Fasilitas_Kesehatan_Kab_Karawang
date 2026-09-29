@@ -53,7 +53,7 @@ st.set_page_config(
     layout="wide"
 )
 
-GITHUB_CSV_URL = "https://github.com/Asalulzy/Dashboard_Sebaran_Fasilitas_Kesehatan_Kab_Karawang/blob/main/data_koordinat3%20(2).csv"
+GITHUB_CSV_URL = "https://github.com/Asalulzy/Dashboard_Sebaran_Fasilitas_Kesehatan_Kab_Karawang/blob/main/data_koordinat3(2).csv"
 
 # Map point size based on TCM availability (no longer based on the
 # magnitude of the variable's value). Feel free to adjust these numbers
