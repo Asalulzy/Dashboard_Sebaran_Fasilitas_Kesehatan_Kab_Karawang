@@ -245,8 +245,17 @@ st.sidebar.caption(f"Data loaded from: **{sumber}**")
 
 st.sidebar.header("Filter")
 
-kab_list = sorted(df["kabupaten"].dropna().unique().tolist())
-kab_selected = st.sidebar.multiselect("District/Regency", kab_list, default=kab_list)
+prov_list = sorted(df["provinsi"].dropna().unique().tolist())
+prov_selected = st.sidebar.multiselect("Province", prov_list, default=prov_list)
+
+# Kabupaten/kota hanya dari provinsi yang dipilih
+kab_list = sorted(
+    df[df["provinsi"].isin(prov_selected)]["kabupaten"].dropna().unique().tolist()
+)
+kab_selected = st.sidebar.multiselect(
+    "District/Regency", kab_list, default=kab_list,
+    key="kab_" + "|".join(prov_selected),   # reset pilihan saat provinsi berubah
+)
 
 jenis_list = sorted(df["jenis_fasyankes"].dropna().unique().tolist())
 jenis_selected = st.sidebar.multiselect("Facility Type", jenis_list, default=jenis_list)
@@ -276,7 +285,11 @@ variabel_col = variabel_options[variabel_label]
 # APPLY FILTER
 # ============================================================
 
-mask = df["kabupaten"].isin(kab_selected) & df["jenis_fasyankes"].isin(jenis_selected)
+mask = (
+    df["provinsi"].isin(prov_selected)
+    & df["kabupaten"].isin(kab_selected)
+    & df["jenis_fasyankes"].isin(jenis_selected)
+)
 fdf = df[mask].copy()
 
 
