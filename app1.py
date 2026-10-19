@@ -39,8 +39,6 @@ import pydeck as pdk
 # ============================================================
 # CONFIG
 # ============================================================
-@st.cache_data(ttl=300)
-def load_data(path_or_url_or_buffer):
 st.set_page_config(page_title="TB Facilities Dashboard", layout="wide")
 
 # IMPORTANT: this file must contain the MiniDock column. Upload
@@ -161,7 +159,7 @@ def render_size_legend():
 # LOAD DATA
 # ============================================================
 
-@st.cache_data
+@st.cache_data(ttl=300)
 def load_data(path_or_url_or_buffer):
     df = pd.read_csv(path_or_url_or_buffer)
     df.columns = [c.strip() for c in df.columns]
