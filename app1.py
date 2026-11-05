@@ -2,38 +2,34 @@
 TB Dashboard - Health Facilities (2 Pages) + MiniDock
 =====================================================
 
-How to run:
+Cara menjalankan:
     pip install streamlit pandas plotly pydeck
     streamlit run app1.py
 
-Place the .streamlit/config.toml folder alongside this file (sets the
-base Streamlit theme colors to teal instead of the default red).
+Sumber data (urutan prioritas):
+    1. File yang diupload lewat sidebar.
+    2. CSV di GitHub (GITHUB_CSV_URL di bawah).
+    3. File lokal TB_Data_JawaBarat_Banten.csv atau data.csv di samping app1.py.
 
-DATA SOURCE (in order of priority)
-    1. A file uploaded via the sidebar.
-    2. GitHub raw CSV via GITHUB_CSV_URL below.
-    3. A local data.csv next to app1.py.
+Nama kolom CSV dikenali otomatis, baik versi asli ("Provinsi", "Kabupaten/Kota",
+"TBC SO", "Enrol DS-TB", ...) maupun versi snake_case (provinsi, kabupaten,
+TBC_SO, enrol_SO, ...). Lihat COLUMN_ALIASES.
 
-Expected columns:
-provinsi_id, provinsi, kabupaten_id, kabupaten, jenis_fasyankes, fasyankes_id,
-fasyankes, jumlah_terduga, terduga_sesuai_standar, TBC_SO, TBC_RO,
-notifikasi_TBC, enrol_SO, enrol_RO, enrol, Latitude, Longitude, TCM, MiniDock
-
-CHANGE NOTES
-    - NEW variable "MiniDock" (number of MiniDock units per facility).
-      It is available in the sidebar variable list, the KPI row, the map
-      tooltip, and the detailed table. If the loaded CSV has no MiniDock
-      column (e.g. the old data_koordinat.csv), it is filled with 0 so the
-      app still runs.
-    - Map: point COLOR follows the selected variable; point SIZE follows
-      TCM availability (TCM_RADIUS vs BASE_RADIUS).
+Untuk Streamlit Cloud, requirements.txt minimal:
+    streamlit
+    pandas
+    numpy
+    plotly
+    pydeck
 """
 
-import streamlit as st
-import pandas as pd
+import re
+
 import numpy as np
+import pandas as pd
 import plotly.express as px
 import pydeck as pdk
+import streamlit as st
 
 
 # ============================================================
@@ -41,19 +37,34 @@ import pydeck as pdk
 # ============================================================
 st.set_page_config(page_title="TB Facilities Dashboard", layout="wide")
 
-# IMPORTANT: this file must contain the MiniDock column. Upload
-# data_koordinat3_minidock.csv to your GitHub repo and update the file
-# name below (or upload the CSV through the sidebar).
-GITHUB_CSV_URL = "https://raw.githubusercontent.com/Asalulzy/Dashboard_Sebaran_Fasilitas_Kesehatan_Kab_Karawang/main/data_koordinat3_minidock.csv"
+# Nama file harus sama persis dengan yang di-upload ke repo GitHub
+# (di root branch main). Kalau nama file atau foldernya beda, ubah di sini.
+GITHUB_CSV_URL = (
+    "https://raw.githubusercontent.com/Asalulzy/"
+    "Dashboard_Sebaran_Fasilitas_Kesehatan_Kab_Karawang/main/"
+    "TB_Data_JawaBarat_Banten.csv"
+)
+LOCAL_CANDIDATES = ["TB_Data_JawaBarat_Banten.csv", "data.csv"]
 
-BASE_RADIUS = 500   # point radius without TCM
-TCM_RADIUS = 850    # point radius with TCM (slightly larger)
+BASE_RADIUS = 500   # radius titik tanpa TCM (meter)
+TCM_RADIUS = 850    # radius titik dengan TCM (sedikit lebih besar)
+
+
+# ============================================================
+# HELPER KOMPATIBILITAS STREAMLIT
+# ============================================================
+def stretch(fn, *args, **kwargs):
+    """Lebar penuh: pakai width='stretch' (Streamlit baru), fallback ke
+    use_container_width=True (Streamlit lama)."""
+    try:
+        return fn(*args, width="stretch", **kwargs)
+    except Exception:
+        return fn(*args, use_container_width=True, **kwargs)
 
 
 # ============================================================
 # DESIGN: COLOR TOKENS, TYPOGRAPHY, CSS
 # ============================================================
-
 INK = "#16232E"
 PAPER = "#F6F7F4"
 SURFACE = "#FFFFFF"
@@ -69,14 +80,22 @@ SEVERITY_RGB = [
 
 
 def get_severity_colors(n_class):
-    """Pick n_class colors evenly from the lightest to the darkest end."""
+    """Pilih n_class warna merata dari ujung terang ke ujung gelap."""
     if n_class <= 1:
         return [SEVERITY_SCALE[-1]], [SEVERITY_RGB[-1]]
     idx = np.round(np.linspace(0, len(SEVERITY_SCALE) - 1, n_class)).astype(int)
     return [SEVERITY_SCALE[i] for i in idx], [SEVERITY_RGB[i] for i in idx]
 
 
-JENIS_COLOR_MAP = {"Puskesmas": TEAL, "Hospital": SLATE}
+JENIS_COLOR_MAP = {
+    "Puskesmas": TEAL,
+    "Hospital": SLATE,
+    "Klinik": "#C1642F",
+    "Dokter Praktik Mandiri": "#E8A33D",
+    "Lapas/Rutan": "#6B7280",
+    "BP4/ BBKPM/ BKPM": "#93321F",
+    "Balai Pengobatan": "#8A6BA8",
+}
 TEAL_RAMP = ["#CFE8E6", "#8FC6C2", "#4FA39D", "#0B5E63", "#063D40"]
 
 CUSTOM_CSS = f"""
@@ -158,13 +177,71 @@ def render_size_legend():
 # ============================================================
 # LOAD DATA
 # ============================================================
+# Nama kolom (dinormalisasi: huruf kecil, tanpa spasi/simbol) -> nama standar app.
+COLUMN_ALIASES = {
+    "provid": "provinsi_id", "provinsiid": "provinsi_id",
+    "provinsi": "provinsi",
+    "kabid": "kabupaten_id", "kabupatenid": "kabupaten_id",
+    "kabupatenkota": "kabupaten", "kabupaten": "kabupaten",
+    "jenisfasyankes": "jenis_fasyankes",
+    "faskesid": "fasyankes_id", "fasyankesid": "fasyankes_id",
+    "fasyankes": "fasyankes",
+    "alamatlengkap": "alamat",
+    "jumlahterduga": "jumlah_terduga",
+    "terdugasesuaistandar": "terduga_sesuai_standar",
+    "tbcso": "TBC_SO",
+    "tbcro": "TBC_RO",
+    "notifikasitbc": "notifikasi_TBC",
+    "enrol": "enrol",
+    "enroldstb": "enrol_SO", "enrolso": "enrol_SO",
+    "enroldrtb": "enrol_RO", "enrolro": "enrol_RO",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "tcm": "TCM",
+    "minidock": "MiniDock",
+}
 
-@st.cache_data(ttl=300)
-def load_data(path_or_url_or_buffer):
-    df = pd.read_csv(path_or_url_or_buffer)
-    df.columns = [c.strip() for c in df.columns]
+REQUIRED_COLUMNS = [
+    "provinsi", "kabupaten", "jenis_fasyankes", "fasyankes",
+    "jumlah_terduga", "TBC_SO", "TBC_RO", "notifikasi_TBC", "enrol",
+    "Latitude", "Longitude",
+]
 
-    # "Rumah Sakit" -> "Hospital" (display only)
+load_errors = []
+
+
+def _norm(name):
+    return re.sub(r"[^a-z0-9]", "", str(name).lower())
+
+
+def standardize_columns(df):
+    """Buang BOM/spasi di nama kolom, lalu samakan ke nama standar app."""
+    df.columns = [str(c).replace("﻿", "").strip() for c in df.columns]
+    rename = {}
+    for c in df.columns:
+        target = COLUMN_ALIASES.get(_norm(c))
+        if target and target != c:
+            rename[c] = target
+    return df.rename(columns=rename)
+
+
+@st.cache_data(ttl=600, show_spinner="Membaca data...")
+def load_data(path_or_buffer):
+    df = pd.read_csv(path_or_buffer, encoding="utf-8-sig")
+    df = standardize_columns(df)
+
+    missing = [c for c in REQUIRED_COLUMNS if c not in df.columns]
+    if missing:
+        raise ValueError(
+            f"Kolom tidak ditemukan: {missing}. Kolom di file: {list(df.columns)}"
+        )
+
+    # Rapikan spasi/tab di kolom teks
+    for c in df.columns:
+        if pd.api.types.is_object_dtype(df[c]) or pd.api.types.is_string_dtype(df[c]):
+            df[c] = df[c].str.replace(r"[\t\r\n]+", " ", regex=True).str.strip()
+
+    # "Rumah Sakit" -> "Hospital" (hanya tampilan)
     if "jenis_fasyankes" in df.columns:
         df["jenis_fasyankes"] = df["jenis_fasyankes"].replace(
             {"Rumah Sakit": "Hospital", "rumah sakit": "Hospital"}
@@ -179,7 +256,7 @@ def load_data(path_or_url_or_buffer):
         if c in df.columns:
             df[c] = pd.to_numeric(df[c], errors="coerce")
 
-    # MiniDock: empty -> 0; column created if missing in the CSV
+    # MiniDock: kosong -> 0; kolom dibuat kalau tidak ada di CSV
     if "MiniDock" not in df.columns:
         df["MiniDock"] = 0
     df["MiniDock"] = df["MiniDock"].fillna(0).astype(int)
@@ -193,9 +270,13 @@ def load_data(path_or_url_or_buffer):
                 return 0
             return 1
         df["TCM_numeric"] = df["TCM"].apply(_tcm_to_flag)
+        df["TCM"] = df["TCM"].fillna("-").astype(str)
     else:
-        df["TCM"] = ""
+        df["TCM"] = "-"
         df["TCM_numeric"] = 0
+
+    # Label unik fasilitas (nama bisa kembar antar kabupaten)
+    df["fasyankes_label"] = df["fasyankes"].astype(str) + " (" + df["kabupaten"].astype(str) + ")"
 
     return df
 
@@ -208,18 +289,23 @@ def load_data_with_fallback(uploaded_file):
         try:
             return load_data(GITHUB_CSV_URL), "GitHub"
         except Exception as e:
-            st.sidebar.warning(f"Failed to load data from GitHub ({e}). Trying local data.csv file...")
+            load_errors.append(f"GitHub: {e}")
+            st.sidebar.warning(f"Gagal memuat dari GitHub ({e}). Mencoba file lokal...")
 
-    try:
-        return load_data("data.csv"), "local file"
-    except FileNotFoundError:
-        return None, None
+    for name in LOCAL_CANDIDATES:
+        try:
+            return load_data(name), f"local file ({name})"
+        except FileNotFoundError:
+            continue
+        except Exception as e:
+            load_errors.append(f"{name}: {e}")
+
+    return None, None
 
 
 # ============================================================
 # SIDEBAR - DATA SOURCE
 # ============================================================
-
 st.sidebar.header("Data Source")
 
 uploaded = st.sidebar.file_uploader(
@@ -230,19 +316,21 @@ df, sumber = load_data_with_fallback(uploaded)
 
 if df is None:
     st.error(
-        "Data not found. No file was uploaded, the GitHub link failed "
-        "(GITHUB_CSV_URL), and no local data.csv file was found. Please "
-        "upload via the sidebar or fix GITHUB_CSV_URL in app1.py."
+        "Data tidak bisa dimuat. Tidak ada file yang diupload, link GitHub gagal "
+        "(cek GITHUB_CSV_URL: nama file, branch, dan apakah repo public), dan "
+        "tidak ada file CSV lokal. Upload lewat sidebar atau perbaiki "
+        "GITHUB_CSV_URL di app1.py."
     )
+    if load_errors:
+        st.code("\n".join(load_errors))
     st.stop()
 
-st.sidebar.caption(f"Data loaded from: **{sumber}**")
+st.sidebar.caption(f"Data loaded from: **{sumber}** ({len(df):,} rows)")
 
 
 # ============================================================
 # SIDEBAR - FILTER
 # ============================================================
-
 st.sidebar.header("Filter")
 
 prov_list = sorted(df["provinsi"].dropna().unique().tolist())
@@ -254,7 +342,7 @@ kab_list = sorted(
 )
 kab_selected = st.sidebar.multiselect(
     "District/Regency", kab_list, default=kab_list,
-    key="kab_" + "|".join(prov_selected),   # reset pilihan saat provinsi berubah
+    key=f"kab_{abs(hash(tuple(prov_selected)))}",   # reset pilihan saat provinsi berubah
 )
 
 jenis_list = sorted(df["jenis_fasyankes"].dropna().unique().tolist())
@@ -264,7 +352,6 @@ jenis_selected = st.sidebar.multiselect("Facility Type", jenis_list, default=jen
 # ============================================================
 # VARIABLE FOR MAP & CHARTS
 # ============================================================
-
 variabel_options = {
     "Number of Presumptive TB Cases": "jumlah_terduga",
     "Drug-Sensitive TB (DS-TB)": "TBC_SO",
@@ -284,7 +371,6 @@ variabel_col = variabel_options[variabel_label]
 # ============================================================
 # APPLY FILTER
 # ============================================================
-
 mask = (
     df["provinsi"].isin(prov_selected)
     & df["kabupaten"].isin(kab_selected)
@@ -296,13 +382,18 @@ fdf = df[mask].copy()
 # ============================================================
 # HEADER & KPI
 # ============================================================
-
 st.title("Mapping of Health Facilities and Monitoring of Tuberculosis Service Indicators")
 st.caption("Presumptive case, notification, and TB enrollment data per health facility")
 
+# Hitung fasilitas unik pakai ID kalau ada (nama bisa kembar)
+if "fasyankes_id" in fdf.columns:
+    n_fasilitas = int(fdf["fasyankes_id"].nunique())
+else:
+    n_fasilitas = int(fdf["fasyankes_label"].nunique())
+
 kpi_cols = st.columns(6)
 kpi_defs = [
-    ("Number of Facilities", fdf["fasyankes"].nunique()),
+    ("Number of Facilities", n_fasilitas),
     ("Total Presumptive Cases", int(fdf["jumlah_terduga"].sum(skipna=True))),
     ("DS-TB", int(fdf["TBC_SO"].sum(skipna=True))),
     ("DR-TB", int(fdf["TBC_RO"].sum(skipna=True))),
@@ -318,23 +409,24 @@ st.divider()
 # ============================================================
 # PAGE NAVIGATION
 # ============================================================
-
 if "page" not in st.session_state:
     st.session_state.page = "Map"
 
 nav_col1, nav_col2, nav_col3 = st.columns([1, 1, 4])
 
 with nav_col1:
-    if st.button("Map Page",
-                 type="primary" if st.session_state.page == "Map" else "secondary",
-                 use_container_width=True):
+    if stretch(
+        st.button, "Map Page",
+        type="primary" if st.session_state.page == "Map" else "secondary",
+    ):
         st.session_state.page = "Map"
         st.rerun()
 
 with nav_col2:
-    if st.button("Data Analyst Page",
-                 type="primary" if st.session_state.page == "Data Analyst" else "secondary",
-                 use_container_width=True):
+    if stretch(
+        st.button, "Data Analyst Page",
+        type="primary" if st.session_state.page == "Data Analyst" else "secondary",
+    ):
         st.session_state.page = "Data Analyst"
         st.rerun()
 
@@ -344,7 +436,6 @@ st.divider()
 # ============================================================
 # PAGE 1: MAP
 # ============================================================
-
 if st.session_state.page == "Map":
 
     st.subheader(f"Distribution Map: {variabel_label}")
@@ -359,10 +450,12 @@ if st.session_state.page == "Map":
         vals = map_df[variabel_col]
         n_unique = vals.nunique()
 
-        # 1 unique value  -> 1 class
-        # 2-5 unique      -> each unique value is its own class (binary / MiniDock)
-        # > 5 unique      -> 5-class quantiles
+        # 1 nilai unik   -> 1 kelas
+        # 2-5 nilai unik -> tiap nilai satu kelas (biner / MiniDock)
+        # > 5 nilai unik -> kuantil 5 kelas
         is_discrete = False
+        discrete_values = None
+        bin_edges = None
 
         if n_unique <= 1:
             n_class = 1
@@ -371,11 +464,10 @@ if st.session_state.page == "Map":
 
         elif n_unique <= 5:
             is_discrete = True
-            sorted_unique = np.sort(vals.unique())
-            n_class = len(sorted_unique)
-            value_to_class = {v: i for i, v in enumerate(sorted_unique)}
+            discrete_values = np.sort(vals.unique())
+            n_class = len(discrete_values)
+            value_to_class = {v: i for i, v in enumerate(discrete_values)}
             class_idx = vals.map(value_to_class)
-            discrete_values = sorted_unique
 
         else:
             try:
@@ -393,31 +485,54 @@ if st.session_state.page == "Map":
         map_df["color_g"] = class_idx.map(lambda i: colors[i][1])
         map_df["color_b"] = class_idx.map(lambda i: colors[i][2])
 
-        # Point size = TCM availability only
+        # Ukuran titik = ketersediaan TCM saja
         map_df["radius"] = np.where(map_df["TCM_numeric"] == 1, TCM_RADIUS, BASE_RADIUS)
 
+        # ---- Legenda: pakai colors_hex yang SAMA dengan warna di peta ----
         legend_items = []
         if is_discrete:
             for i, v in enumerate(discrete_values):
-                label = str(int(v)) if float(v).is_integer() else str(v)
+                if variabel_col == "TCM_numeric":
+                    label = "Ada" if v == 1 else "Tidak ada"
+                else:
+                    label = str(int(v)) if float(v).is_integer() else str(v)
                 legend_items.append((label, colors_hex[i]))
         else:
-            edges = np.unique(np.round(bin_edges).astype(int))
-            n_edge_class = len(edges) - 1
-            edge_colors_hex, _ = get_severity_colors(n_edge_class)
-            for i in range(n_edge_class):
-                legend_items.append((f"{edges[i]} – {edges[i+1]}", edge_colors_hex[i]))
-        if legend_items:
-            render_legend(legend_items)
-
+            edges = np.round(bin_edges).astype(int)
+            if n_class == 1:
+                legend_items.append((f"{edges[0]:,} – {edges[-1]:,}", colors_hex[0]))
+            else:
+                for i in range(n_class):
+                    legend_items.append((f"{edges[i]:,} – {edges[i + 1]:,}", colors_hex[i]))
+        render_legend(legend_items)
         render_size_legend()
 
+        # ---- Zoom & pusat peta menyesuaikan sebaran data ----
+        lat_min, lat_max = map_df["Latitude"].min(), map_df["Latitude"].max()
+        lon_min, lon_max = map_df["Longitude"].min(), map_df["Longitude"].max()
+        span = max(lat_max - lat_min, lon_max - lon_min, 0.01)
+        zoom = float(np.clip(np.log2(360 / span) - 0.5, 3, 12))
+
         view_state = pdk.ViewState(
-            latitude=map_df["Latitude"].mean(),
-            longitude=map_df["Longitude"].mean(),
-            zoom=9,
+            latitude=float((lat_min + lat_max) / 2),
+            longitude=float((lon_min + lon_max) / 2),
+            zoom=zoom,
             pitch=0,
         )
+
+        # ---- Bersihkan NaN supaya tooltip & JSON aman ----
+        tooltip_cols = [
+            "jumlah_terduga", "TBC_SO", "TBC_RO", "notifikasi_TBC", "MiniDock", "enrol",
+        ]
+        for c in tooltip_cols:
+            if c in map_df.columns:
+                map_df[c] = map_df[c].fillna(0).astype(int)
+
+        keep_cols = [
+            "Latitude", "Longitude", "fasyankes", "kabupaten", "jenis_fasyankes",
+            "TCM", "radius", "color_r", "color_g", "color_b",
+        ] + [c for c in tooltip_cols if c in map_df.columns]
+        map_df = map_df[keep_cols]
 
         layer = pdk.Layer(
             "ScatterplotLayer",
@@ -425,10 +540,12 @@ if st.session_state.page == "Map":
             get_position="[Longitude, Latitude]",
             get_radius="radius",
             get_fill_color="[color_r, color_g, color_b, 190]",
+            radius_min_pixels=4,
+            radius_max_pixels=30,
             pickable=True,
             stroked=True,
             get_line_color=[22, 35, 46],
-            get_line_width=1,
+            line_width_min_pixels=1,
             auto_highlight=True,
         )
 
@@ -473,9 +590,14 @@ if st.session_state.page == "Map":
             },
         }
 
-        st.pydeck_chart(
-            pdk.Deck(layers=[layer], initial_view_state=view_state, tooltip=tooltip, map_style="road"),
-            use_container_width=True,
+        stretch(
+            st.pydeck_chart,
+            pdk.Deck(
+                layers=[layer],
+                initial_view_state=view_state,
+                tooltip=tooltip,
+                map_style="road",
+            ),
             height=820,
         )
 
@@ -483,7 +605,6 @@ if st.session_state.page == "Map":
 # ============================================================
 # PAGE 2: DATA ANALYST
 # ============================================================
-
 else:
 
     st.subheader("Display Settings")
@@ -506,25 +627,32 @@ else:
         )
         st.subheader(judul_top)
 
-        top_df = fdf.dropna(subset=[variabel_col]).sort_values(variabel_col, ascending=False)
-        if jumlah_n is not None:
-            top_df = top_df.head(jumlah_n)
+        if variabel_col == "TCM_numeric":
+            st.info(
+                "Bar chart tidak informatif untuk mWRD Availability (semua nilai 0/1). "
+                "Pilih variabel lain di sidebar, atau lihat chart per kabupaten di sebelah kanan."
+            )
+        else:
+            top_df = fdf.dropna(subset=[variabel_col]).sort_values(variabel_col, ascending=False)
+            if jumlah_n is not None:
+                top_df = top_df.head(jumlah_n)
 
-        chart_height = max(500, min(len(top_df) * 25, 2000))
+            chart_height = max(500, min(len(top_df) * 25, 2000))
 
-        fig_bar = px.bar(
-            top_df, x=variabel_col, y="fasyankes", orientation="h",
-            color="jenis_fasyankes", text=variabel_col,
-            color_discrete_map=JENIS_COLOR_MAP,
-        )
-        fig_bar.update_layout(
-            yaxis=dict(autorange="reversed"),
-            height=chart_height,
-            plot_bgcolor=SURFACE,
-            paper_bgcolor=SURFACE,
-            font=dict(family="IBM Plex Sans", color=INK),
-        )
-        st.plotly_chart(fig_bar, use_container_width=True)
+            fig_bar = px.bar(
+                top_df, x=variabel_col, y="fasyankes_label", orientation="h",
+                color="jenis_fasyankes", text=variabel_col,
+                color_discrete_map=JENIS_COLOR_MAP,
+                labels={variabel_col: variabel_label, "fasyankes_label": "Facility"},
+            )
+            fig_bar.update_layout(
+                yaxis=dict(autorange="reversed"),
+                height=chart_height,
+                plot_bgcolor=SURFACE,
+                paper_bgcolor=SURFACE,
+                font=dict(family="IBM Plex Sans", color=INK),
+            )
+            stretch(st.plotly_chart, fig_bar)
 
     with c2:
         st.subheader(f"Total {variabel_label} by District/Regency")
@@ -532,7 +660,10 @@ else:
         agg_df = fdf.groupby("kabupaten", as_index=False)[variabel_col].sum().sort_values(
             variabel_col, ascending=False
         )
-        fig_kab = px.bar(agg_df, x="kabupaten", y=variabel_col)
+        fig_kab = px.bar(
+            agg_df, x="kabupaten", y=variabel_col,
+            labels={variabel_col: variabel_label, "kabupaten": "District/Regency"},
+        )
         fig_kab.update_traces(marker_color=TEAL)
         fig_kab.update_layout(
             height=500,
@@ -541,16 +672,22 @@ else:
             paper_bgcolor=SURFACE,
             font=dict(family="IBM Plex Sans", color=INK),
         )
-        st.plotly_chart(fig_kab, use_container_width=True)
+        stretch(st.plotly_chart, fig_kab)
 
     st.divider()
 
     st.subheader("TB Cascade Comparison (Presumptive → Notification → Enrollment)")
 
-    cascade_cols = [c for c in ["jumlah_terduga", "notifikasi_TBC", "enrol"] if c in fdf.columns]
+    cascade_labels = {
+        "jumlah_terduga": "Presumptive Cases",
+        "notifikasi_TBC": "TB Notifications",
+        "enrol": "Total Enrollment",
+    }
+    cascade_cols = [c for c in cascade_labels if c in fdf.columns]
 
     cascade_sum = fdf[cascade_cols].sum(skipna=True).reset_index()
     cascade_sum.columns = ["Stage", "Count"]
+    cascade_sum["Stage"] = cascade_sum["Stage"].map(cascade_labels)
 
     fig_cascade = px.funnel(cascade_sum, x="Count", y="Stage")
     fig_cascade.update_traces(marker_color=TEAL_RAMP[:len(cascade_sum)])
@@ -559,12 +696,12 @@ else:
         paper_bgcolor=SURFACE,
         font=dict(family="IBM Plex Sans", color=INK),
     )
-    st.plotly_chart(fig_cascade, use_container_width=True)
+    stretch(st.plotly_chart, fig_cascade)
 
     st.divider()
 
     st.subheader("Detailed Data")
-    st.dataframe(fdf, use_container_width=True, hide_index=True)
+    stretch(st.dataframe, fdf.drop(columns=["fasyankes_label"]), hide_index=True)
 
-    csv = fdf.to_csv(index=False).encode("utf-8")
+    csv = fdf.drop(columns=["fasyankes_label"]).to_csv(index=False).encode("utf-8")
     st.download_button("Download filtered data (CSV)", csv, "data_tb_filtered.csv", "text/csv")
