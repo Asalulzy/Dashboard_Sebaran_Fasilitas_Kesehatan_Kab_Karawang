@@ -42,7 +42,7 @@ st.set_page_config(page_title="TB Facilities Dashboard", layout="wide")
 GITHUB_CSV_URL = (
     "https://raw.githubusercontent.com/Asalulzy/"
     "Dashboard_Sebaran_Fasilitas_Kesehatan_Kab_Karawang/main/"
-    "TB_Data_JawaBarat_Banten.csv"
+    "data_koordinat3_minidock.csv"
 )
 LOCAL_CANDIDATES = ["TB_Data_JawaBarat_Banten.csv", "data.csv"]
 
