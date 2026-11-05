@@ -46,8 +46,9 @@ GITHUB_CSV_URL = (
 )
 LOCAL_CANDIDATES = ["TB_Data_JawaBarat_Banten.csv", "data.csv"]
 
-BASE_RADIUS = 500   # radius titik tanpa TCM (meter)
-TCM_RADIUS = 850    # radius titik dengan TCM (sedikit lebih besar)
+# Ukuran titik dalam PIKSEL layar, jadi tidak ikut membesar saat peta di-zoom.
+BASE_RADIUS = 5     # radius titik tanpa TCM (piksel)
+TCM_RADIUS = 9      # radius titik dengan TCM (sedikit lebih besar)
 
 
 # ============================================================
@@ -199,6 +200,10 @@ COLUMN_ALIASES = {
     "longitude": "Longitude",
     "tcm": "TCM",
     "minidock": "MiniDock",
+    "typeoftcm": "Type_of_TCM",
+    "m10": "M10",
+    "totalmodule": "Total_Module",
+    "testpermonth": "Test_per_Month",
 }
 
 REQUIRED_COLUMNS = [
@@ -251,29 +256,34 @@ def load_data(path_or_buffer):
         "jumlah_terduga", "terduga_sesuai_standar", "TBC_SO", "TBC_RO",
         "notifikasi_TBC", "enrol_SO", "enrol_RO", "enrol",
         "Latitude", "Longitude", "MiniDock",
+        "Total_Module", "Test_per_Month",
     ]
     for c in numeric_cols:
         if c in df.columns:
             df[c] = pd.to_numeric(df[c], errors="coerce")
 
-    # MiniDock: kosong -> 0; kolom dibuat kalau tidak ada di CSV
-    if "MiniDock" not in df.columns:
-        df["MiniDock"] = 0
-    df["MiniDock"] = df["MiniDock"].fillna(0).astype(int)
+    # Kolom hitungan: kosong -> 0; kolom dibuat kalau tidak ada di CSV
+    for c in ["MiniDock", "Total_Module", "Test_per_Month", "terduga_sesuai_standar"]:
+        if c not in df.columns:
+            df[c] = 0
+        df[c] = df[c].fillna(0).astype(int)
 
-    if "TCM" in df.columns:
-        def _tcm_to_flag(v):
-            if pd.isna(v):
-                return 0
-            s = str(v).strip().lower()
-            if s in ["", "0", "tidak", "tidak ada", "no", "false", "nan", "-"]:
-                return 0
-            return 1
-        df["TCM_numeric"] = df["TCM"].apply(_tcm_to_flag)
-        df["TCM"] = df["TCM"].fillna("-").astype(str)
-    else:
-        df["TCM"] = "-"
-        df["TCM_numeric"] = 0
+    def _to_flag(v):
+        if pd.isna(v):
+            return 0
+        s = str(v).strip().lower()
+        if s in ["", "0", "tidak", "tidak ada", "no", "false", "nan", "-"]:
+            return 0
+        return 1
+
+    # Kolom status teks (TCM, M10): kosong -> "-", plus versi 0/1 untuk peta
+    for col in ["TCM", "M10"]:
+        if col in df.columns:
+            df[f"{col}_numeric"] = df[col].apply(_to_flag)
+            df[col] = df[col].fillna("-").astype(str)
+        else:
+            df[col] = "-"
+            df[f"{col}_numeric"] = 0
 
     # Label unik fasilitas (nama bisa kembar antar kabupaten)
     df["fasyankes_label"] = df["fasyankes"].astype(str) + " (" + df["kabupaten"].astype(str) + ")"
@@ -354,6 +364,7 @@ jenis_selected = st.sidebar.multiselect("Facility Type", jenis_list, default=jen
 # ============================================================
 variabel_options = {
     "Number of Presumptive TB Cases": "jumlah_terduga",
+    "Presumptive Cases Meeting Standard": "terduga_sesuai_standar",
     "Drug-Sensitive TB (DS-TB)": "TBC_SO",
     "Drug-Resistant TB (DR-TB)": "TBC_RO",
     "TB Notifications": "notifikasi_TBC",
@@ -362,7 +373,13 @@ variabel_options = {
     "Total Enrollment": "enrol",
     "mWRD Availability": "TCM_numeric",
     "MiniDock Count": "MiniDock",
+    "M10 Availability": "M10_numeric",
+    "Total Module": "Total_Module",
+    "Tests per Month": "Test_per_Month",
 }
+
+# Variabel 0/1 (ada / tidak ada)
+BINARY_VARS = {"TCM_numeric", "M10_numeric"}
 
 variabel_label = st.sidebar.selectbox("Variable for map & charts", list(variabel_options.keys()))
 variabel_col = variabel_options[variabel_label]
@@ -391,17 +408,25 @@ if "fasyankes_id" in fdf.columns:
 else:
     n_fasilitas = int(fdf["fasyankes_label"].nunique())
 
-kpi_cols = st.columns(6)
 kpi_defs = [
     ("Number of Facilities", n_fasilitas),
     ("Total Presumptive Cases", int(fdf["jumlah_terduga"].sum(skipna=True))),
+    ("Presumptive Meeting Standard", int(fdf["terduga_sesuai_standar"].sum())),
     ("DS-TB", int(fdf["TBC_SO"].sum(skipna=True))),
     ("DR-TB", int(fdf["TBC_RO"].sum(skipna=True))),
     ("TB Notifications", int(fdf["notifikasi_TBC"].sum(skipna=True))),
     ("MiniDock Units", int(fdf["MiniDock"].sum())),
+    ("M10 Sites", int(fdf["M10_numeric"].sum())),
+    ("Total Modules", int(fdf["Total_Module"].sum())),
+    ("Tests per Month", int(fdf["Test_per_Month"].sum())),
 ]
-for col, (label, value) in zip(kpi_cols, kpi_defs):
-    kpi_card(label, value, col)
+KPI_PER_ROW = 5
+for start in range(0, len(kpi_defs), KPI_PER_ROW):
+    if start > 0:
+        st.markdown("<div style='height:0.6rem'></div>", unsafe_allow_html=True)
+    row_cols = st.columns(KPI_PER_ROW)
+    for col, (label, value) in zip(row_cols, kpi_defs[start:start + KPI_PER_ROW]):
+        kpi_card(label, value, col)
 
 st.divider()
 
@@ -452,8 +477,10 @@ if st.session_state.page == "Map":
 
         # 1 nilai unik   -> 1 kelas
         # 2-5 nilai unik -> tiap nilai satu kelas (biner / MiniDock)
-        # > 5 nilai unik -> kuantil 5 kelas
+        # > 5 nilai unik -> kuantil 5 kelas; kalau banyak nilai 0 (>= 40%),
+        #                   nol jadi kelas sendiri dan sisanya kuantil 4 kelas
         is_discrete = False
+        zero_class = False
         discrete_values = None
         bin_edges = None
 
@@ -470,14 +497,29 @@ if st.session_state.page == "Map":
             class_idx = vals.map(value_to_class)
 
         else:
-            try:
-                classed, bin_edges = pd.qcut(vals, q=5, retbins=True, duplicates="drop")
-                n_class = classed.cat.categories.size
-                class_idx = classed.cat.codes.replace(-1, 0)
-            except ValueError:
-                n_class = 1
+            nonzero = vals[vals != 0]
+            if (vals == 0).mean() >= 0.4 and nonzero.nunique() >= 2:
+                zero_class = True
+                try:
+                    classed, bin_edges = pd.qcut(nonzero, q=4, retbins=True, duplicates="drop")
+                    n_nonzero = classed.cat.categories.size
+                    nz_idx = classed.cat.codes.replace(-1, 0).astype(int) + 1
+                except ValueError:
+                    n_nonzero = 1
+                    nz_idx = pd.Series(1, index=nonzero.index)
+                    bin_edges = np.array([nonzero.min(), nonzero.max()])
                 class_idx = pd.Series(0, index=vals.index)
-                bin_edges = np.array([vals.min(), vals.max()])
+                class_idx.loc[nonzero.index] = nz_idx
+                n_class = n_nonzero + 1
+            else:
+                try:
+                    classed, bin_edges = pd.qcut(vals, q=5, retbins=True, duplicates="drop")
+                    n_class = classed.cat.categories.size
+                    class_idx = classed.cat.codes.replace(-1, 0)
+                except ValueError:
+                    n_class = 1
+                    class_idx = pd.Series(0, index=vals.index)
+                    bin_edges = np.array([vals.min(), vals.max()])
 
         colors_hex, colors = get_severity_colors(n_class)
 
@@ -492,18 +534,20 @@ if st.session_state.page == "Map":
         legend_items = []
         if is_discrete:
             for i, v in enumerate(discrete_values):
-                if variabel_col == "TCM_numeric":
+                if variabel_col in BINARY_VARS:
                     label = "Ada" if v == 1 else "Tidak ada"
                 else:
                     label = str(int(v)) if float(v).is_integer() else str(v)
                 legend_items.append((label, colors_hex[i]))
         else:
             edges = np.round(bin_edges).astype(int)
-            if n_class == 1:
-                legend_items.append((f"{edges[0]:,} – {edges[-1]:,}", colors_hex[0]))
-            else:
-                for i in range(n_class):
-                    legend_items.append((f"{edges[i]:,} – {edges[i + 1]:,}", colors_hex[i]))
+            offset = 1 if zero_class else 0
+            if zero_class:
+                legend_items.append(("0", colors_hex[0]))
+            for i in range(n_class - offset):
+                legend_items.append(
+                    (f"{edges[i]:,} – {edges[i + 1]:,}", colors_hex[i + offset])
+                )
         render_legend(legend_items)
         render_size_legend()
 
@@ -522,7 +566,8 @@ if st.session_state.page == "Map":
 
         # ---- Bersihkan NaN supaya tooltip & JSON aman ----
         tooltip_cols = [
-            "jumlah_terduga", "TBC_SO", "TBC_RO", "notifikasi_TBC", "MiniDock", "enrol",
+            "jumlah_terduga", "terduga_sesuai_standar", "TBC_SO", "TBC_RO",
+            "notifikasi_TBC", "MiniDock", "Total_Module", "Test_per_Month", "enrol",
         ]
         for c in tooltip_cols:
             if c in map_df.columns:
@@ -530,22 +575,24 @@ if st.session_state.page == "Map":
 
         keep_cols = [
             "Latitude", "Longitude", "fasyankes", "kabupaten", "jenis_fasyankes",
-            "TCM", "radius", "color_r", "color_g", "color_b",
+            "TCM", "M10", "radius", "color_r", "color_g", "color_b",
         ] + [c for c in tooltip_cols if c in map_df.columns]
         map_df = map_df[keep_cols]
 
+        # Ukuran titik dalam piksel -> tetap kecil saat di-zoom in, sehingga
+        # koordinat yang berdekatan terlihat terpisah dan lebih spesifik.
         layer = pdk.Layer(
             "ScatterplotLayer",
             data=map_df,
             get_position="[Longitude, Latitude]",
             get_radius="radius",
+            radius_units='"pixels"',   # tanda kutip ganda wajib: nilai literal, bukan ekspresi
             get_fill_color="[color_r, color_g, color_b, 190]",
-            radius_min_pixels=4,
-            radius_max_pixels=30,
             pickable=True,
             stroked=True,
             get_line_color=[22, 35, 46],
-            line_width_min_pixels=1,
+            get_line_width=1,
+            line_width_units='"pixels"',
             auto_highlight=True,
         )
 
@@ -558,12 +605,15 @@ if st.session_state.page == "Map":
                     {{fasyankes}}
                 </div>
                 <div style="font-size:12px; color:#5b6b73; margin-bottom:8px;">
-                    {{kabupaten}} &middot; {{jenis_fasyankes}} &middot; mWRD: {{TCM}}
+                    {{kabupaten}} &middot; {{jenis_fasyankes}}<br>
+                    mWRD: {{TCM}} &middot; M10: {{M10}}
                 </div>
                 <table style="width:100%; border-collapse:collapse; font-size:12px;
                                font-family:'IBM Plex Mono',monospace;">
                     <tr><td style="color:#5b6b73;">Presumptive Cases</td>
                         <td style="text-align:right; font-weight:600;">{{jumlah_terduga}}</td></tr>
+                    <tr><td style="color:#5b6b73;">Meeting Standard</td>
+                        <td style="text-align:right; font-weight:600;">{{terduga_sesuai_standar}}</td></tr>
                     <tr><td style="color:#5b6b73;">DS-TB</td>
                         <td style="text-align:right; font-weight:600;">{{TBC_SO}}</td></tr>
                     <tr><td style="color:#5b6b73;">DR-TB</td>
@@ -572,6 +622,10 @@ if st.session_state.page == "Map":
                         <td style="text-align:right; font-weight:600;">{{notifikasi_TBC}}</td></tr>
                     <tr><td style="color:#5b6b73;">MiniDock</td>
                         <td style="text-align:right; font-weight:600;">{{MiniDock}}</td></tr>
+                    <tr><td style="color:#5b6b73;">Total Module</td>
+                        <td style="text-align:right; font-weight:600;">{{Total_Module}}</td></tr>
+                    <tr><td style="color:#5b6b73;">Tests per Month</td>
+                        <td style="text-align:right; font-weight:600;">{{Test_per_Month}}</td></tr>
                     <tr style="border-top:1px solid {LINE};">
                         <td style="color:#5b6b73;">Total Enrollment</td>
                         <td style="text-align:right; font-weight:600;">{{enrol}}</td></tr>
@@ -627,10 +681,11 @@ else:
         )
         st.subheader(judul_top)
 
-        if variabel_col == "TCM_numeric":
+        if variabel_col in BINARY_VARS:
             st.info(
-                "Bar chart tidak informatif untuk mWRD Availability (semua nilai 0/1). "
-                "Pilih variabel lain di sidebar, atau lihat chart per kabupaten di sebelah kanan."
+                f"Bar chart per fasilitas tidak informatif untuk {variabel_label} "
+                "(nilainya hanya 0/1). Pilih variabel lain di sidebar, atau lihat "
+                "chart per kabupaten di sebelah kanan."
             )
         else:
             top_df = fdf.dropna(subset=[variabel_col]).sort_values(variabel_col, ascending=False)
