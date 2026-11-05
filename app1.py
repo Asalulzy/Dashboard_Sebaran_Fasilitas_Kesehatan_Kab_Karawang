@@ -44,7 +44,7 @@ st.set_page_config(page_title="TB Facilities Dashboard", layout="wide")
 # IMPORTANT: this file must contain the MiniDock column. Upload
 # data_koordinat3_minidock.csv to your GitHub repo and update the file
 # name below (or upload the CSV through the sidebar).
-GITHUB_CSV_URL = "https://raw.githubusercontent.com/Asalulzy/Dashboard_Sebaran_Fasilitas_Kesehatan_Kab_Karawang/main/TB_Data_Indonesia_by_Their_Facility_koordinat_terisi.csv"
+GITHUB_CSV_URL = "https://raw.githubusercontent.com/Asalulzy/Dashboard_Sebaran_Fasilitas_Kesehatan_Kab_Karawang/main/data_koordinat3_minidock.csv"
 
 BASE_RADIUS = 500   # point radius without TCM
 TCM_RADIUS = 850    # point radius with TCM (slightly larger)
