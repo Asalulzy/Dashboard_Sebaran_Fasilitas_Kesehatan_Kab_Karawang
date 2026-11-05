@@ -867,7 +867,7 @@ Prov ID,Provinsi,Kab ID,Kabupaten/Kota,Jenis Fasyankes,Faskes ID,Fasyankes,Alama
 12,Jawa Barat,170,Kab. Majalengka,Puskesmas,3386,Puskesmas Kadipaten Majalengka,"Puskesmas Kadipaten Majalengka, Kab. Majalengka, Jawa Barat",1039,1034,70,0,70,70,70,0,-6.784171799999999,108.1713888,,,,,,
 12,Jawa Barat,170,Kab. Majalengka,Puskesmas,3387,Puskesmas Kertajati,"Puskesmas Kertajati, Kab. Majalengka, Jawa Barat",367,362,53,0,53,49,49,0,-6.676419,108.190547,,,,,,
 12,Jawa Barat,170,Kab. Majalengka,Puskesmas,3388,Puskesmas Sukamulya Majalengka,"Puskesmas Sukamulya Majalengka, Kab. Majalengka, Jawa Barat",189,162,16,0,16,16,16,0,-6.6387947,108.1399022,,,,,,
-16,Banten,273,Kota Tangerang Selatan,Puskesmas,6085,Puskesmas Bhakti Jaya,"Puskesmas Bhakti Jaya, Kota Tangerang Selatan, Banten",821,817,59,0,59,59,59,0,-6.356256,106.7135608,,,,Yes,2.0,1000.0
+16,Banten,273,Kota Tangerang Selatan,Puskesmas,6085,Puskesmas Bhakti Jaya,"Puskesmas Bhakti Jaya, Kota Tangerang Selatan, Banten",821,817,59,0,59,59,59,0,-6.356256,106.7135608,Ada,,,Yes,2.0,1000.0
 12,Jawa Barat,170,Kab. Majalengka,Puskesmas,3390,Puskesmas Panongan Majalengka,"Puskesmas Panongan Majalengka, Kab. Majalengka, Jawa Barat",207,207,24,1,25,25,24,1,-6.678071099999999,108.2211021,,,,,,
 12,Jawa Barat,170,Kab. Majalengka,Puskesmas,3391,Puskesmas Ligung,"Puskesmas Ligung, Kab. Majalengka, Jawa Barat",1105,1105,73,1,74,74,73,1,-6.651882899999999,108.2804088,,,,,,
 16,Banten,266,Kab. Pandeglang,Puskesmas,5888,Puskesmas Bojong Pandeglang,"Puskesmas Bojong Pandeglang, Kab. Pandeglang, Banten",1185,1183,96,1,97,96,96,0,-6.47139595669859,106.000943670914,,,,Yes,4.0,100.0
@@ -887,10 +887,10 @@ Prov ID,Provinsi,Kab ID,Kabupaten/Kota,Jenis Fasyankes,Faskes ID,Fasyankes,Alama
 16,Banten,266,Kab. Pandeglang,Puskesmas,5882,Puskesmas Sobang Pandeglang,"Puskesmas Sobang Pandeglang, Kab. Pandeglang, Banten",1010,1008,156,0,156,155,155,0,-6.55904424123731,105.759000089616,,,,,,
 16,Banten,266,Kab. Pandeglang,Puskesmas,5883,Puskesmas Mekarjaya,"Puskesmas Mekarjaya, Kab. Pandeglang, Banten",657,656,73,1,74,74,73,1,-6.39030999672933,106.066636320254,,,,,,
 16,Banten,266,Kab. Pandeglang,Puskesmas,5884,Puskesmas Munjul,"Puskesmas Munjul, Kab. Pandeglang, Banten",825,824,94,1,95,95,94,1,-6.60433399306731,105.905374415545,Ada,,,,,
-16,Banten,273,Kota Tangerang Selatan,Puskesmas,18017,Puskesmas Ciater,"Puskesmas Ciater, Kota Tangerang Selatan, Banten",558,556,43,1,44,44,43,1,-6.3168571,106.6986736,,,,Yes,2.0,200.0
+16,Banten,273,Kota Tangerang Selatan,Puskesmas,18017,Puskesmas Ciater,"Puskesmas Ciater, Kota Tangerang Selatan, Banten",558,556,43,1,44,44,43,1,-6.3168571,106.6986736,Ada,,,Yes,2.0,200.0
 16,Banten,266,Kab. Pandeglang,Puskesmas,5886,Puskesmas Sindang Resmi,"Puskesmas Sindang Resmi, Kab. Pandeglang, Banten",588,588,62,0,62,62,62,0,-6.54426719999999,105.9200636,,,,,,
 16,Banten,266,Kab. Pandeglang,Puskesmas,5887,Puskesmas Picung,"Puskesmas Picung, Kab. Pandeglang, Banten",902,900,118,0,118,117,117,0,-6.5112044,105.9788824,Ada,,,,,
-12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3216,Puskesmas Cigalontang,"Puskesmas Cigalontang, Kab. Tasikmalaya, Jawa Barat",1366,1353,88,1,89,84,83,1,-7.35,108.016667,,,,Yes,4.0,100.0
+12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3216,Puskesmas Cigalontang,"Puskesmas Cigalontang, Kab. Tasikmalaya, Jawa Barat",1366,1353,88,1,89,84,83,1,-7.35,108.016667,Ada,,,Yes,4.0,100.0
 12,Jawa Barat,170,Kab. Majalengka,Puskesmas,3365,Puskesmas Cikijing,"Puskesmas Cikijing, Kab. Majalengka, Jawa Barat",1059,1051,114,1,115,112,111,1,-7.016322799999999,108.365731,,,,Yes,4.0,200.0
 16,Banten,266,Kab. Pandeglang,Puskesmas,5890,Puskesmas Cisata,"Puskesmas Cisata, Kab. Pandeglang, Banten",661,654,64,0,64,63,63,0,-6.3953281426397,105.947336177684,,,,,,
 16,Banten,266,Kab. Pandeglang,Puskesmas,5891,Puskesmas Pagelaran Pandeglang,"Puskesmas Pagelaran Pandeglang, Kab. Pandeglang, Banten",1013,985,116,0,116,112,112,0,-6.4315165,105.8589344,,,,,,
@@ -1237,7 +1237,7 @@ Prov ID,Provinsi,Kab ID,Kabupaten/Kota,Jenis Fasyankes,Faskes ID,Fasyankes,Alama
 16,Banten,268,Kab. Tangerang,Rumah Sakit,15138,PRIMAYA HOSPITAL PASAR KEMIS,"PRIMAYA HOSPITAL PASAR KEMIS, Kab. Tangerang, Banten",357,304,158,1,159,153,152,1,-6.17130943346895,106.552757721602,,,,,,
 16,Banten,268,Kab. Tangerang,Rumah Sakit,37017,RS Umum Daerah Tigaraksa,"RS Umum Daerah Tigaraksa, Kab. Tangerang, Banten",344,313,141,0,141,137,137,0,-6.263344,106.4668032,,,,,,
 16,Banten,268,Kab. Tangerang,Rumah Sakit,37677,RS Hermina PIK Dua,"RS Hermina PIK Dua, Kab. Tangerang, Banten",27,23,6,0,6,5,5,0,-6.05764724602755,106.681334132762,,,,,,
-12,Jawa Barat,170,Kab. Majalengka,Puskesmas,3389,Puskesmas Jatitujuh,"Puskesmas Jatitujuh, Kab. Majalengka, Jawa Barat",2352,2352,169,0,169,167,167,0,-6.645527,108.229316,,,,Yes,4.0,200.0
+12,Jawa Barat,170,Kab. Majalengka,Puskesmas,3389,Puskesmas Jatitujuh,"Puskesmas Jatitujuh, Kab. Majalengka, Jawa Barat",2352,2352,169,0,169,167,167,0,-6.645527,108.229316,Ada,,,Yes,4.0,200.0
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3191,Puskesmas Karang Nunggal,"Puskesmas Karang Nunggal, Kab. Tasikmalaya, Jawa Barat",1149,1147,132,3,135,130,127,3,-7.6257315,108.1360603,,,,,,
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3192,Puskesmas Cikalong,"Puskesmas Cikalong, Kab. Tasikmalaya, Jawa Barat",818,810,87,3,90,90,87,3,-7.1195976,107.5550285,,,,,,
 16,Banten,273,Kota Tangerang Selatan,Puskesmas,6101,Puskesmas Jurang Manggu,"Puskesmas Jurang Manggu, Kota Tangerang Selatan, Banten",1443,1436,77,2,79,79,77,2,-6.2644709,106.7304572,,,,Yes,4.0,30.0
@@ -1251,8 +1251,8 @@ Prov ID,Provinsi,Kab ID,Kabupaten/Kota,Jenis Fasyankes,Faskes ID,Fasyankes,Alama
 12,Jawa Barat,182,Kota Cirebon,Puskesmas,3788,Puskesmas Kalitanjung,"Puskesmas Kalitanjung, Kota Cirebon, Jawa Barat",340,340,38,1,39,39,38,1,-6.7444679,108.5418021,,,,Yes,2.0,100.0
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3202,Puskesmas Taraju,"Puskesmas Taraju, Kab. Tasikmalaya, Jawa Barat",623,595,95,0,95,91,91,0,-7.4604833,107.9817891,,,,,,
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3203,Puskesmas Salawu,"Puskesmas Salawu, Kab. Tasikmalaya, Jawa Barat",1611,1598,131,1,132,131,130,1,-7.3769848,108.0377658,,,,,,
-12,Jawa Barat,182,Kota Cirebon,Puskesmas,3806,Puskesmas Kejaksan,"Puskesmas Kejaksan, Kota Cirebon, Jawa Barat",373,373,35,0,35,34,34,0,-6.7013384,108.5546158,,,,Yes,2.0,100.0
-12,Jawa Barat,182,Kota Cirebon,Puskesmas,3793,Puskesmas Kesunean,"Puskesmas Kesunean, Kota Cirebon, Jawa Barat",271,271,47,2,49,43,41,2,-6.7271147,108.575406,,,,Yes,2.0,100.0
+12,Jawa Barat,182,Kota Cirebon,Puskesmas,3806,Puskesmas Kejaksan,"Puskesmas Kejaksan, Kota Cirebon, Jawa Barat",373,373,35,0,35,34,34,0,-6.7013384,108.5546158,Ada,,,Yes,2.0,100.0
+12,Jawa Barat,182,Kota Cirebon,Puskesmas,3793,Puskesmas Kesunean,"Puskesmas Kesunean, Kota Cirebon, Jawa Barat",271,271,47,2,49,43,41,2,-6.7271147,108.575406,Ada,,,Yes,2.0,100.0
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3206,Puskesmas Sukaraja Tasikmalaya,"Puskesmas Sukaraja Tasikmalaya, Kab. Tasikmalaya, Jawa Barat",1969,1965,139,1,140,140,139,1,-7.451735999999999,108.1941514,,,,,,
 16,Banten,266,Kab. Pandeglang,Puskesmas,5894,Puskesmas Labuan Pandeglang,"Puskesmas Labuan Pandeglang, Kab. Pandeglang, Banten",1494,1484,201,4,205,204,200,4,-6.38030176191191,105.835171151073,,,,Yes,4.0,200.0
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3208,Puskesmas Jatiwaras,"Puskesmas Jatiwaras, Kab. Tasikmalaya, Jawa Barat",611,605,103,1,104,103,102,1,-7.4846201,108.232933,,,,,,
@@ -1263,7 +1263,7 @@ Prov ID,Provinsi,Kab ID,Kabupaten/Kota,Jenis Fasyankes,Faskes ID,Fasyankes,Alama
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3213,Puskesmas Singaparna,"Puskesmas Singaparna, Kab. Tasikmalaya, Jawa Barat",1013,1013,100,0,100,98,98,0,-7.3511571,108.1110153,,,,,,
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3214,Puskesmas Sukarame Tasikmalaya,"Puskesmas Sukarame Tasikmalaya, Kab. Tasikmalaya, Jawa Barat",528,515,112,2,114,107,105,2,-7.3768685,108.1341554,,,,,,
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3215,Puskesmas Mangunreja,"Puskesmas Mangunreja, Kab. Tasikmalaya, Jawa Barat",778,772,51,0,51,51,51,0,-7.3651397,108.1028562,,,,,,
-12,Jawa Barat,170,Kab. Majalengka,Puskesmas,3361,Puskesmas Lemahsugih,"Puskesmas Lemahsugih, Kab. Majalengka, Jawa Barat",340,338,59,2,61,61,59,2,-7.0119171,108.1697255,,,,Yes,4.0,160.0
+12,Jawa Barat,170,Kab. Majalengka,Puskesmas,3361,Puskesmas Lemahsugih,"Puskesmas Lemahsugih, Kab. Majalengka, Jawa Barat",340,338,59,2,61,61,59,2,-7.0119171,108.1697255,Ada,,,Yes,4.0,160.0
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3217,Puskesmas Leuwisari,"Puskesmas Leuwisari, Kab. Tasikmalaya, Jawa Barat",876,861,122,0,122,122,122,0,-7.336600000000001,108.1016627,,,,,,
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3218,Puskesmas Karangjaya,"Puskesmas Karangjaya, Kab. Tasikmalaya, Jawa Barat",248,234,39,0,39,39,39,0,-7.451147199999999,108.4129552,,,,,,
 16,Banten,273,Kota Tangerang Selatan,Puskesmas,18015,Puskesmas Lengkong Karya,"Puskesmas Lengkong Karya, Kota Tangerang Selatan, Banten",1201,1201,43,1,44,44,43,1,-6.27690059999999,106.6732048,,,,Yes,2.0,50.0
@@ -1275,7 +1275,7 @@ Prov ID,Provinsi,Kab ID,Kabupaten/Kota,Jenis Fasyankes,Faskes ID,Fasyankes,Alama
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3225,Puskesmas Jamanis,"Puskesmas Jamanis, Kab. Tasikmalaya, Jawa Barat",272,250,70,0,70,69,69,0,-7.1894893,108.1825316,,,,,,
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3226,Puskesmas Ciawi,"Puskesmas Ciawi, Kab. Tasikmalaya, Jawa Barat",766,752,199,1,200,197,196,1,-7.1576722,108.1538699,,,,,,
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3227,Puskesmas Kadipaten,"Puskesmas Kadipaten, Kab. Tasikmalaya, Jawa Barat",439,439,59,0,59,59,59,0,-6.784171799999999,108.1713888,,,,,,
-12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3193,Puskesmas Pancatengah,"Puskesmas Pancatengah, Kab. Tasikmalaya, Jawa Barat",985,980,118,1,119,117,116,1,-7.665650199999999,108.2726109,,,,Yes,4.0,300.0
+12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3193,Puskesmas Pancatengah,"Puskesmas Pancatengah, Kab. Tasikmalaya, Jawa Barat",985,980,118,1,119,117,116,1,-7.665650199999999,108.2726109,Ada,,,Yes,4.0,300.0
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3229,Puskesmas Sukaresik,"Puskesmas Sukaresik, Kab. Tasikmalaya, Jawa Barat",1319,1317,98,0,98,96,96,0,-7.156534700000001,108.1892517,,,,,,
 12,Jawa Barat,166,Kab. Tasikmalaya,Rumah Sakit,10778,RSUD KHZ Musthafa,"RSUD KHZ Musthafa, Kab. Tasikmalaya, Jawa Barat",1626,1614,687,11,698,617,608,9,-7.358817999999999,108.1061428,,,,,,
 12,Jawa Barat,166,Kab. Tasikmalaya,Rumah Sakit,10782,RS Ibu dan Anak Respati,"RS Ibu dan Anak Respati, Kab. Tasikmalaya, Jawa Barat",38,38,17,0,17,16,16,0,-7.3091348,108.2096409,,,,,,
@@ -1609,11 +1609,11 @@ Prov ID,Provinsi,Kab ID,Kabupaten/Kota,Jenis Fasyankes,Faskes ID,Fasyankes,Alama
 12,Jawa Barat,182,Kota Cirebon,Puskesmas,3803,Puskesmas Sunyaragi,"Puskesmas Sunyaragi, Kota Cirebon, Jawa Barat",326,326,10,1,11,11,10,1,-6.7388723,108.5433814,,,,,,
 12,Jawa Barat,182,Kota Cirebon,Puskesmas,3804,Puskesmas Majasem,"Puskesmas Majasem, Kota Cirebon, Jawa Barat",322,322,36,0,36,34,34,0,-6.742928999999999,108.5229995,,,,,,
 12,Jawa Barat,182,Kota Cirebon,Puskesmas,3805,Puskesmas Drajat,"Puskesmas Drajat, Kota Cirebon, Jawa Barat",298,297,30,0,30,30,30,0,-6.7309657,108.5595218,,,,,,
-12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3204,Puskesmas Puspahiang,"Puskesmas Puspahiang, Kab. Tasikmalaya, Jawa Barat",1035,1030,128,0,128,127,127,0,-7.414556500000001,108.0494126,,,,Yes,4.0,60.0
+12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3204,Puskesmas Puspahiang,"Puskesmas Puspahiang, Kab. Tasikmalaya, Jawa Barat",1035,1030,128,0,128,127,127,0,-7.414556500000001,108.0494126,Ada,,,Yes,4.0,60.0
 12,Jawa Barat,182,Kota Cirebon,Puskesmas,3807,Puskesmas Jalan Kembang,"Puskesmas Jalan Kembang, Kota Cirebon, Jawa Barat",296,296,16,0,16,16,16,0,-6.709124,108.5534469,,,,,,
 12,Jawa Barat,182,Kota Cirebon,Puskesmas,3808,Puskesmas Nelayan Kota Cirebon,"Puskesmas Nelayan Kota Cirebon, Kota Cirebon, Jawa Barat",128,125,14,0,14,12,12,0,-6.706892,108.5630838,,,,,,
 12,Jawa Barat,182,Kota Cirebon,Puskesmas,3809,Puskesmas Pamitran,"Puskesmas Pamitran, Kota Cirebon, Jawa Barat",336,336,35,0,35,34,34,0,-6.7144448,108.5587579,,,,,,
-12,Jawa Barat,182,Kota Cirebon,Rumah Sakit,10983,RS Umum Daerah Gunung Jati,"RS Umum Daerah Gunung Jati, Kota Cirebon, Jawa Barat",1873,1860,770,18,788,766,750,16,-6.7323162,108.5560494,,,,Yes,2.0,100.0
+12,Jawa Barat,182,Kota Cirebon,Rumah Sakit,10983,RS Umum Daerah Gunung Jati,"RS Umum Daerah Gunung Jati, Kota Cirebon, Jawa Barat",1873,1860,770,18,788,766,750,16,-6.7323162,108.5560494,Ada,,,Yes,2.0,100.0
 12,Jawa Barat,182,Kota Cirebon,Rumah Sakit,10984,RS Umum Tk. III Ciremai,"RS Umum Tk. III Ciremai, Kota Cirebon, Jawa Barat",605,599,308,3,311,273,271,2,-6.7381442,108.5498242,,,,,,
 12,Jawa Barat,182,Kota Cirebon,Rumah Sakit,10985,RS Ibu dan Anak Panti Abdi Dharma,"RS Ibu dan Anak Panti Abdi Dharma, Kota Cirebon, Jawa Barat",474,458,350,2,352,337,335,2,-6.724207799999999,108.5689364,,,,,,
 12,Jawa Barat,182,Kota Cirebon,Rumah Sakit,10986,RS Umum Pelabuhan Cirebon,"RS Umum Pelabuhan Cirebon, Kota Cirebon, Jawa Barat",1080,1044,469,7,476,457,451,6,-6.7149309,108.5692817,,,,,,
@@ -1720,7 +1720,7 @@ Prov ID,Provinsi,Kab ID,Kabupaten/Kota,Jenis Fasyankes,Faskes ID,Fasyankes,Alama
 16,Banten,272,Kota Serang,Puskesmas,6082,Puskesmas Sawah Luhur,"Puskesmas Sawah Luhur, Kota Serang, Banten",424,421,12,0,12,12,12,0,-6.03160416671583,106.208044844896,,,,,,
 16,Banten,272,Kota Serang,Rumah Sakit,11869,RS Budiasih,"RS Budiasih, Kota Serang, Banten",545,452,366,3,369,347,344,3,-6.12178468227852,106.165744963957,,,,,,
 16,Banten,272,Kota Serang,Rumah Sakit,11870,RS Bedah Benggala,"RS Bedah Benggala, Kota Serang, Banten",7,4,7,0,7,6,6,0,-6.1229176,106.1556657,,,,,,
-12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3207,Puskesmas Salopa,"Puskesmas Salopa, Kab. Tasikmalaya, Jawa Barat",1803,1794,200,6,206,203,197,6,-7.517456300000001,108.2714872,,,,Yes,4.0,180.0
+12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3207,Puskesmas Salopa,"Puskesmas Salopa, Kab. Tasikmalaya, Jawa Barat",1803,1794,200,6,206,203,197,6,-7.517456300000001,108.2714872,Ada,,,Yes,4.0,180.0
 16,Banten,272,Kota Serang,Rumah Sakit,11910,RS Umum Ibunda,"RS Umum Ibunda, Kota Serang, Banten",33,29,14,0,14,13,13,0,-6.11839445507629,106.150486463948,,,,,,
 16,Banten,272,Kota Serang,Rumah Sakit,11911,RS Fatimah,"RS Fatimah, Kota Serang, Banten",93,89,31,0,31,30,30,0,-6.1037747,106.1355398,,,,,,
 12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3219,Puskesmas Sariwangi,"Puskesmas Sariwangi, Kab. Tasikmalaya, Jawa Barat",853,849,84,0,84,83,83,0,-7.3279945,108.0774037,,,,Yes,4.0,50.0
@@ -2101,7 +2101,7 @@ Prov ID,Provinsi,Kab ID,Kabupaten/Kota,Jenis Fasyankes,Faskes ID,Fasyankes,Alama
 16,Banten,270,Kota Tangerang,Rumah Sakit,37456,RS Umum Daerah BENDA,"RS Umum Daerah BENDA, Kota Tangerang, Banten",14,13,4,0,4,4,4,0,-6.200545,106.635138,,,,,,
 16,Banten,273,Kota Tangerang Selatan,Puskesmas,6083,Puskesmas Setu,"Puskesmas Setu, Kota Tangerang Selatan, Banten",568,567,47,0,47,45,45,0,-6.34771889999999,106.6786429,,,,,,
 16,Banten,273,Kota Tangerang Selatan,Puskesmas,6084,Puskesmas Kranggan,"Puskesmas Kranggan, Kota Tangerang Selatan, Banten",731,726,54,0,54,54,54,0,-6.34716966479505,106.655931865796,,,,,,
-16,Banten,272,Kota Serang,Puskesmas,6073,Puskesmas Singandaru,"Puskesmas Singandaru, Kota Serang, Banten",1330,1330,75,0,75,75,75,0,-6.1140433541238,106.141997450451,,,,Yes,4.0,30.0
+16,Banten,272,Kota Serang,Puskesmas,6073,Puskesmas Singandaru,"Puskesmas Singandaru, Kota Serang, Banten",1330,1330,75,0,75,75,75,0,-6.1140433541238,106.141997450451,Ada,,,Yes,4.0,30.0
 16,Banten,268,Kab. Tangerang,Klinik,17428,KLINIK ANNASR II,,11,11,2,0,2,2,2,0,,,,,,,,
 16,Banten,268,Kab. Tangerang,Klinik,17439,KLINIK MUTIARA BUNDA (JST),,3,3,1,0,1,1,1,0,,,,,,,,
 16,Banten,268,Kab. Tangerang,Klinik,17444,KLINIK DARMA NUSANTARA,,55,54,5,0,5,5,5,0,,,,,,,,
@@ -2583,7 +2583,7 @@ Prov ID,Provinsi,Kab ID,Kabupaten/Kota,Jenis Fasyankes,Faskes ID,Fasyankes,Alama
 16,Banten,273,Kota Tangerang Selatan,Rumah Sakit,14471,RSIA BINA MEDIKA,"RSIA BINA MEDIKA, Kota Tangerang Selatan, Banten",24,24,12,0,12,12,12,0,-6.2759733,106.7182569,,,,,,
 16,Banten,273,Kota Tangerang Selatan,Puskesmas,15002,Puskesmas Cireundeu,"Puskesmas Cireundeu, Kota Tangerang Selatan, Banten",572,568,55,0,55,54,54,0,-6.31432041629847,106.771032223469,,,,,,
 12,Jawa Barat,171,Kab. Sumedang,Klinik,36354,Klinik Utama Pranadia Medika,,73,8,60,0,60,46,46,0,,,,,,,,
-12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3205,Puskesmas Tanjungjaya,"Puskesmas Tanjungjaya, Kab. Tasikmalaya, Jawa Barat",722,721,114,0,114,111,111,0,-7.3931138,108.153488,,,,Yes,4.0,60.0
+12,Jawa Barat,166,Kab. Tasikmalaya,Puskesmas,3205,Puskesmas Tanjungjaya,"Puskesmas Tanjungjaya, Kab. Tasikmalaya, Jawa Barat",722,721,114,0,114,111,111,0,-7.3931138,108.153488,Ada,,,Yes,4.0,60.0
 16,Banten,273,Kota Tangerang Selatan,Rumah Sakit,15326,RSUD Serpong Utara,"RSUD Serpong Utara, Kota Tangerang Selatan, Banten",266,234,90,0,90,89,89,0,-6.2398834,106.647589,,,,,,
 16,Banten,266,Kab. Pandeglang,Klinik,36398,Klinik Alinda Husada,,7,5,7,0,7,6,6,0,,,,,,,,
 16,Banten,272,Kota Serang,Puskesmas,6068,Puskesmas Walantaka,"Puskesmas Walantaka, Kota Serang, Banten",1374,1373,133,0,133,129,129,0,-6.1574432951342,106.222455723488,,,,Yes,4.0,30.0
